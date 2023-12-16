@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const { Client } = require('pg');
 const { Strategy, ExtractJwt } = require('passport-jwt');
 
+
 const app = express()
 const port = 3000
 
@@ -14,7 +15,7 @@ const client = new Client({
     user: 'postgres',
     host: 'localhost',
     database: 'zenvibe',
-    password: '123',
+    password: 'Lebronjames63',
     port: 5432,
   });
 
@@ -39,7 +40,7 @@ passport.use(new LocalStrategy(
 passport.use('jwt', new Strategy(
     {
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        secretOrKey: 'secret-key'
+        secretOrKey: process.env.JWT_SECRET
     },
     (jwtPayload, done)=>{
         client.query('SELECT * FROM users where id = $1', [jwtPayload.sub], (err, result)=>{
@@ -64,7 +65,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(passport.initialize());
 
 app.post('/register', (req, res) => {
-    const { username, password } = req.body;
+  const token = jwt.sign({ sub: userId }, process.env.JWT_SECRET);
+  res.json({ token });
   
     // Check if username is already taken
     client.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
@@ -86,7 +88,7 @@ app.post('/register', (req, res) => {
           }
   
           const userId = result.rows[0].id;
-          const token = jwt.sign({ sub: userId }, 'secret-key');
+          const token = jwt.sign({ sub: userId }, process.env.JWT_SECRET);
           res.json({ token });
         });
     });
@@ -94,7 +96,7 @@ app.post('/register', (req, res) => {
   
 
 app.post('/login', passport.authenticate('local', {session: false}), (req,res)=>{
-    const token = jwt.sign({sub:req.user.id}, 'secret-key')
+    const token = jwt.sign({sub:req.user.id}, process.env.JWT_SECRET)
     res.json({ token });
 })
 
