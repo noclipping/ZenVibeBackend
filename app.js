@@ -14,7 +14,7 @@ const port = 3000
 const client = new Client({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
-    database: 'zenvibe',
+    database: 'zenvibe_DB',
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
   });
