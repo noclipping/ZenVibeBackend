@@ -12,11 +12,11 @@ const app = express()
 const port = 3000
 
 const client = new Client({
-    user: 'postgres',
-    host: 'localhost',
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
     database: 'zenvibe',
-    password: 'Lebronjames63',
-    port: 5432,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
   });
 
   client.connect()
