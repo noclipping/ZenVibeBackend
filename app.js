@@ -7,21 +7,12 @@ const bcrypt = require('bcrypt');
 const { Client } = require('pg');
 const { Strategy, ExtractJwt } = require('passport-jwt');
 require('dotenv').config()
-
-console.log(process.env.DB_NAME, process.env.DB_PASSWORD) 
+const user = require('./queries/userQueries.js')
+const db = require('./database.js')
+const client = db.pool
 
 const app = express()
 const port = 3000
-
-const client = new Client({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
-  });
-
-  client.connect()
 
 passport.use(new LocalStrategy(
     (username, password, done) => {
@@ -68,13 +59,10 @@ passport.use('jwt', new Strategy(
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-
 app.use(passport.initialize());
 
 app.post('/register', (req, res) => {
-  // const token = jwt.sign({ sub: req.userId }, process.env.JWT_SECRET);
-  // res.json({ token });
-  console.log(req.body.username,req.body.password)
+
   let username = req.body.username;
   let password = req.body.password;
   
@@ -111,26 +99,19 @@ app.post('/login', passport.authenticate('local', {session: false}), (req,res)=>
     res.json({ token });
 })
 
-app.get('/profile', (req, res, next) => {
-  passport.authenticate('jwt', { session: false }, (err, user, info) => {
-    if (err) {
-      console.log('Error:', err);
-      return res.status(500).json({ error: err });
-    }
-    if (!user) {
-      console.log('Authentication Failed. Info:', info);
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-    req.user = user; // Manually assign the user to the request object
-    next(); // Proceed to the next middleware
-  })(req, res, next);
-}, (req, res) => {
-  // Your original route logic
-  console.log(req.user);
-  res.send(`Hello ${req.user.username}, welcome home!`);
-});
-  
+app.get('/user', 
+  passport.authenticate('jwt', { session: false } ),
+  (req,res)=>{ user.getUser(req,res)})
+
+// app.delete('/user/:id'
+  // passport.authenticate('jwt', { session: false } ),),
+  // (req,res)=>{ user.deleteUser(req,res)})
+
+// app.update
+
+// app.create
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+exports.client = client
