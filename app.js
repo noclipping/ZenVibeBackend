@@ -15,19 +15,19 @@ const app = express()
 const port = 3000
 
 passport.use(new LocalStrategy(
-    (username, password, done) => {
-        client.query('SELECT * FROM users WHERE username = $1', [username], (err,result)=>{
-            if(err){
-                return done(err)
-            }
+  (username, password_hash, done) => {
+    client.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
+      if (err) {
+        return done(err)
+      }
 
-            const user = result.rows[0];
-            if(!user || !bcrypt.compareSync(password, user.password_hash)) {
-                return done(null, false)
-            }
-            return done(null, user);
-        })
-    }
+      const user = result.rows[0];
+      if (!user || !bcrypt.compareSync(password_hash, user.password_hash)) {
+        return done(null, false)
+      }
+      return done(null, user);
+    })
+  }
 ))
 
 passport.use('jwt', new Strategy(
@@ -58,58 +58,67 @@ passport.use('jwt', new Strategy(
 ));
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
 app.post('/register', (req, res) => {
 
   let username = req.body.username;
-  let password = req.body.password;
-  
-    // Check if username is already taken
-    client.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err });
-      }
-  
-      if (result.rows.length > 0) {
-        return res.status(400).json({ error: 'Username is already taken' });
-      }
-  
-      // If username is available, hash the password and create the user
-      const hashedPassword = bcrypt.hashSync(password, 10);
-  
-      client.query('INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING user_id',
-        [username, hashedPassword], (err, result) => {
-          if (err) {
-            console.log(err,'err')
-            return res.status(500).json({ error: 'Internal Server Error' });
-          }
-  
-          const user = result.rows[0]
-          const token = jwt.sign({ sub: user }, process.env.JWT_SECRET);
-          res.json({ token });
-        });
-    });
-  });
-  
+  let requestedPassword = req.body.password_hash;
+  let email = req.body.email
+  let original_weight = req.body.original_weight
+  let height = req.body.height
+  let age = req.body.age
+  let goal_weight = req.body.goal_weight
 
-app.post('/login', passport.authenticate('local', {session: false}), (req,res)=>{  
-    const token = jwt.sign({sub:req.user}, process.env.JWT_SECRET)
-    res.json({ token });
+  // Check if username is already taken
+  client.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: err });
+    }
+
+    if (result.rows.length > 0) {
+      return res.status(400).json({ error: 'Username is already taken' });
+    }
+
+    // If username is available, hash the password and create the user
+    const hashedPassword = bcrypt.hashSync(requestedPassword, 10);
+    console.log(hashedPassword)
+
+    client.query('INSERT INTO users (username, password_hash, email, original_weight, height, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING user_id',
+
+      [username, hashedPassword, email, original_weight, height, age, goal_weight], (err, result) => {
+        if (err) {
+          console.log(err, 'err')
+
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+
+        const user = result.rows[0]
+        const token = jwt.sign({ sub: user }, process.env.JWT_SECRET);
+        res.json({ token });
+      });
+  });
+});
+
+
+app.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
+  const token = jwt.sign({ sub: req.user }, process.env.JWT_SECRET)
+  res.json({ token });
 })
 
-app.get('/user', 
-  passport.authenticate('jwt', { session: false } ),
-  (req,res)=>{ user.getUser(req,res)})
+app.get('/user',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { user.getUser(req, res) })
 
-// app.delete('/user/:id'
-  // passport.authenticate('jwt', { session: false } ),),
-  // (req,res)=>{ user.deleteUser(req,res)})
+app.delete('/user/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { user.deleteUser(req, res) })
 
-// app.update
+app.put('/user/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { user.updateUser(req,res)})
 
-// app.create
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
