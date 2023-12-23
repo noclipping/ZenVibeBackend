@@ -26,10 +26,10 @@ const updateUser = async (req, res) => {
     const updatedUsername = username || preExistingData.rows[0].username;
     const updatedPasswordHash = password_hash || preExistingData.rows[0].password_hash;
     const updatedEmail = email || preExistingData.rows[0].email;
-    const updatedOriginalWeight = Number(original_weight) || preExistingData.rows[0].original_weight;
-    const updatedHeight = Number(height) || preExistingData.rows[0].height;
-    const updatedAge = Number(age) || preExistingData.rows[0].age;
-    const updatedGoalWeight = Number(goal_weight) || preExistingData.rows[0].goal_weight;
+    const updatedOriginalWeight = isNaN(original_weight) ? preExistingData.rows[0].original_weight : Number(original_weight);
+    const updatedHeight = isNaN(height) ? preExistingData.rows[0].height : Number(height);
+    const updatedAge = isNaN(age) ? preExistingData.rows[0].age : Number(age);
+    const updatedGoalWeight = isNaN(goal_weight) ? preExistingData.rows[0].goal_weight : Number(goal_weight);
 
 
 const result = await db.pool.query(

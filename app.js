@@ -109,7 +109,7 @@ app.post('/login', passport.authenticate('local', { session: false }), (req, res
 
 app.get('/user',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { user.getUser(req, res) })
+  (req, res) => { user.getUser(req, res) }) 
 
 app.delete('/user/:id',
   passport.authenticate('jwt', { session: false }),
