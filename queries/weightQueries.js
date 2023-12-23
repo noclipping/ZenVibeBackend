@@ -6,28 +6,53 @@ const getWeight = (req, res) => {
             console.error(err, 'ERROR');
             res.status(500).send('Error retrieving weights');
         } else {
-            console.log(result, 'success');
+            console.log(result.rows, 'success');
             res.status(200).json(result.rows);
         }
     });
 };
 
 const createWeight = (req, res) => {
-    console.log(req.body.weight, 'imported console log');
-    
-    res.status(201).send('Weight created successfully');
+    const { weight } = req.body;
+
+    db.pool.query('INSERT INTO weights (weight) VALUES ($1) RETURNING *', [weight], (err, result) => {
+        if (err) {
+            console.error(err, 'ERROR');
+            res.status(500).send('Error creating weight');
+        } else {
+            console.log(result.rows[0], 'success');
+            res.status(201).json(result.rows[0]);
+        }
+    });
 };
 
 const deleteWeight = (req, res) => {
-    console.log(req.params.user_id, 'deleted console log'); 
-    
-    res.status(200).send('Weight deleted successfully');
+    const userId = req.params.user_id;
+
+    db.pool.query('DELETE FROM weights WHERE user_id = $1 RETURNING *', [userId], (err, result) => {
+        if (err) {
+            console.error(err, 'ERROR');
+            res.status(500).send('Error deleting weight');
+        } else {
+            console.log(result.rows[0], 'success');
+            res.status(200).json(result.rows[0]);
+        }
+    });
 };
 
 const updateWeight = (req, res) => {
-    console.log(req.params.user_id, 'updated console log');
-    
-    res.status(200).send('Weight updated successfully');
+    const userId = req.params.user_id;
+    const { weight } = req.body;
+
+    db.pool.query('UPDATE weights SET weight = $1 WHERE user_id = $2 RETURNING *', [weight, userId], (err, result) => {
+        if (err) {
+            console.error(err, 'ERROR');
+            res.status(500).send('Error updating weight');
+        } else {
+            console.log(result.rows[0], 'success');
+            res.status(200).json(result.rows[0]);
+        }
+    });
 };
 
 exports.getWeight = getWeight;
