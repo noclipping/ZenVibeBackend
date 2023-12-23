@@ -10,6 +10,7 @@ require('dotenv').config()
 const user = require('./queries/userQueries.js')
 const db = require('./database.js')
 const client = db.pool
+const weight = require('./queries/weightQueries.js')
 
 const app = express()
 const port = 3000
@@ -110,6 +111,20 @@ app.get('/user',
 // app.update
 
 // app.create
+app.get("/weight", (req, res)=>{
+  weight.getWeight(req, res)
+})
+//app.post.delete.put
+app.post('/weight', (req, res)=>{
+  weight.createWeight(req, res)
+})
+app.delete('/weight/:user_id', (req, res)=>{
+ weight.deleteWeight(req, res)
+})
+app.put('/weight/:user_id', (req, res)=>{
+  weight.updateWeight(req, res)
+});
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
