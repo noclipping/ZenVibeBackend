@@ -10,6 +10,7 @@ require('dotenv').config()
 const user = require('./queries/userQueries.js')
 const db = require('./database.js')
 const client = db.pool
+const reminders = require('./queries/remindersQueries.js')
 
 const app = express()
 const port = 3000

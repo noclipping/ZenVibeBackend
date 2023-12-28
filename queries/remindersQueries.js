@@ -1,5 +1,6 @@
 const db = require('../database');
 
+
 const getReminders = (req, res) => {
     db.pool.query('SELECT * FROM reminders', (err, result) => {
         if (err) {
