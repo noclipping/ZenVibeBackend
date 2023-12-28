@@ -8,6 +8,7 @@ const { Client } = require('pg');
 const { Strategy, ExtractJwt } = require('passport-jwt');
 require('dotenv').config()
 const user = require('./queries/userQueries.js')
+const food = require('./queries/foodEntryQueries.js')
 const db = require('./database.js')
 const client = db.pool
 
@@ -118,6 +119,22 @@ app.delete('/user/:id',
 app.put('/user/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => { user.updateUser(req,res)})
+
+app.post('/food', 
+  passport.authenticate('jwt', { session: false}),
+  (req, res) => {food.addFood(req, res) })
+
+app.get('/food',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { food.getFood(req, res) }) 
+
+app.delete('/food/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { food.deleteFood(req, res) })
+
+app.put('/food/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { food.updateFood(req,res)})
 
 
 app.listen(port, () => {
