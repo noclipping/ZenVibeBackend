@@ -53,7 +53,7 @@ const updateReminder = (req, res) => {
     const { title, description, due_date } = req.body;
 
     db.pool.query(
-        'UPDATE reminders_data SET title = $1, description = $2, due_date = $3 WHERE reminder_id = $4 RETURNING *',
+        'UPDATE reminders SET title = $1, description = $2, due_date = $3 WHERE reminder_id = $4 RETURNING *',
         [title, description, due_date, reminderId],
         (err, result) => {
             if (err) {
