@@ -11,6 +11,14 @@ const getFood = (req, res) => {
 const addFood = async (req, res) => {
     const {food_name, calories, entry_date} = req.body
 
+    if(!food_name || !calories || !entry_date){
+        return res.status(400).json({error: 'All fields required.'})
+    }
+
+    if(isNaN(calories)){
+        return res.status(400).json({ error: 'Calories must be a number.'})
+    }
+
     const result = await db.pool.query(
         "INSERT INTO food_entries (food_name, calories, entry_date) VALUES ($1, $2, $3) RETURNING *",
         [food_name, calories, entry_date]
