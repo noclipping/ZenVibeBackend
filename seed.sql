@@ -11,6 +11,8 @@ CREATE TABLE users (
     email VARCHAR(255),
     original_weight FLOAT,
     height INT,
+    feet INT,
+    inches INT,
     age INT,
     goal_weight FLOAT
 );
@@ -43,11 +45,11 @@ CREATE TABLE water_intake (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
--- Create table 'exercise_entries'
-CREATE TABLE exercise_entries (
+-- Create table 'activity_entries'
+CREATE TABLE activity_entries (
     entry_id SERIAL PRIMARY KEY,
     user_id INT,
-    exercise_name VARCHAR(255),
+    activity_name VARCHAR(255),
     sets INT,
     reps INT,
     lift_weight INT,
@@ -204,7 +206,7 @@ VALUES
 
 --exercise_entries
 
-INSERT INTO exercise_entries (user_id, exercise_name, sets, reps, lift_weight, duration, entry_date)
+INSERT INTO activity_entries (user_id, activity_name, sets, reps, lift_weight, duration, entry_date)
 VALUES
     (1, 'Bench Press', 3, 10, 150, 30, '2023-01-01'),
     (2, 'Squats', 4, 12, 200, 45, '2023-01-02'),

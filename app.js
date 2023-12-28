@@ -9,6 +9,7 @@ const { Strategy, ExtractJwt } = require('passport-jwt');
 require('dotenv').config()
 const user = require('./queries/userQueries.js')
 const food = require('./queries/foodEntryQueries.js')
+const exercise = require('./queries/activityQueries.js')
 const db = require('./database.js')
 const client = db.pool
 
@@ -121,7 +122,7 @@ app.put('/user/:id',
   (req, res) => { user.updateUser(req,res)})
 
 app.post('/food', 
-  passport.authenticate('jwt', { session: false}),
+  passport.authenticate('jwt', { session: false }),
   (req, res) => {food.addFood(req, res) })
 
 app.get('/food',
@@ -135,6 +136,12 @@ app.delete('/food/:id',
 app.put('/food/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => { food.updateFood(req,res)})
+
+app.get('/activity',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { getActivity.getActivity(req, res)}
+)
+
 
 
 app.listen(port, () => {
