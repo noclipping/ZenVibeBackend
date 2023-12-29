@@ -10,7 +10,7 @@ const pool = new Pool ({
     port: process.env.DB_PORT,
 })
 
-
+//user data seeded before other data
 async function seedDatabase() {
     
     try {
