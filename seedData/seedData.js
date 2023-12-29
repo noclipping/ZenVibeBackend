@@ -1,22 +1,49 @@
+const users = [
+    { username: 'john_doe', password_hash: 'securePassword1', email: 'john.doe@example.com', original_weight: 160, feet: 5, inches: 11, age: 25, goal_weight: 150 },
+    { username: 'alice_smith', password_hash: 'strongPass123', email: 'alice.smith@example.com', original_weight: 140, feet: 5, inches: 5, age: 30, goal_weight: 130 },
+    { username: 'bob_jones', password_hash: 'secretPass567', email: 'bob.jones@example.com', original_weight: 180, feet: 5, inches: 9, age: 28, goal_weight: 170 },
+    { username: 'emily_wilson', password_hash: 'password456', email: 'emily.wilson@example.com', original_weight: 120, feet: 5, inches: 4, age: 22, goal_weight: 110 },
+    { username: 'chris_martin', password_hash: 'coldplayFan89', email: 'chris.martin@example.com', original_weight: 150, feet: 6, inches: 0, age: 35, goal_weight: 140 },
+    { username: 'lisa_smith', password_hash: 'lisa1234', email: 'lisa.smith@example.com', original_weight: 170, feet: 5, inches: 8, age: 27, goal_weight: 160 },
+    { username: 'david_williams', password_hash: 'pianoMan007', email: 'david.williams@example.com', original_weight: 130, feet: 5, inches: 6, age: 32, goal_weight: 120 },
+    { username: 'olivia_miller', password_hash: 'sunshine22', email: 'olivia.miller@example.com', original_weight: 155, feet: 5, inches: 10, age: 29, goal_weight: 145 },
+    { username: 'samuel_jackson', password_hash: 'pulpFiction1', email: 'samuel.jackson@example.com', original_weight: 140, feet: 5, inches: 2, age: 24, goal_weight: 130 },
+    { username: 'natalie_carter', password_hash: 'blueSky789', email: 'natalie.carter@example.com', original_weight: 165, feet: 6, inches: 2, age: 31, goal_weight: 155 },
+    { username: 'michael_jordan', password_hash: 'goat23', email: 'michael.jordan@example.com', original_weight: 190, feet: 6, inches: 6, age: 58, goal_weight: 180 },
+    { username: 'emma_roberts', password_hash: 'screamQueen', email: 'emma.roberts@example.com', original_weight: 125, feet: 5, inches: 3, age: 31, goal_weight: 115 },
+    { username: 'justin_bieber', password_hash: 'belieber4eva', email: 'justin.bieber@example.com', original_weight: 140, feet: 5, inches: 7, age: 28, goal_weight: 130 },
+    { username: 'taylor_swift', password_hash: 'shakeItOff22', email: 'taylor.swift@example.com', original_weight: 130, feet: 5, inches: 10, age: 32, goal_weight: 120 },
+    { username: 'ryan_gosling', password_hash: 'notebookFan123', email: 'ryan.gosling@example.com', original_weight: 160, feet: 6, inches: 1, age: 41, goal_weight: 150 },
+    { username: 'jennifer_aniston', password_hash: 'friendsForever', email: 'jennifer.aniston@example.com', original_weight: 135, feet: 5, inches: 6, age: 53, goal_weight: 125 },
+    { username: 'leonardo_dicaprio', password_hash: 'oscarWinner2020', email: 'leonardo.dicaprio@example.com', original_weight: 150, feet: 6, inches: 0, age: 47, goal_weight: 140 },
+    { username: 'megan_fox', password_hash: 'transformerGirl', email: 'megan.fox@example.com', original_weight: 125, feet: 5, inches: 4, age: 35, goal_weight: 115 },
+    { username: 'brad_pitt', password_hash: 'fightClub99', email: 'brad.pitt@example.com', original_weight: 170, feet: 5, inches: 11, age: 58, goal_weight: 160 },
+    { username: 'angelina_jolie', password_hash: 'tombRaider007', email: 'angelina.jolie@example.com', original_weight: 120, feet: 5, inches: 6, age: 46, goal_weight: 110 },
+    { username: 'scarlett_johansson', password_hash:'blackWidow123', email: 'scarlett.johansson@example.com', original_weight: 140, feet: 5, inches: 3, age: 37, goal_weight: 130 },
+    { username: 'chadwick_boseman', password_hash: 'blackPanther42', email: 'chadwick.boseman@example.com', original_weight: 160, feet: 6, inches: 0, age: 43, goal_weight: 150 },
+    { username: 'zendaya', password_hash: 'euphoria2022', email: 'zendaya@example.com', original_weight: 130, feet: 5, inches: 10, age: 25, goal_weight: 120 },
+    { username: "spiderman", "password_hash": "webslinger123", "email": "spidey@example.com", "original_weight": 160, "feet": 6, "inches": 0, "age": 22, "goal_weight": 150 },
+    { "username": "blackwidow", "password_hash": "redroom007", "email": "natasha@example.com", "original_weight": 120, "feet": 5, "inches": 7, "age": 30, "goal_weight": 115 }
 
+]
 
--- Drop tables if they already exist
-DROP TABLE IF EXISTS weight_data, food_entries, water_intake, exercise_entries, mood_tracker, reminders, users;
+const createTables = `
+DROP TABLE IF EXISTS users, weight_data, food_entries, water_intake, activity_entries, mood_tracker, reminders;
 
--- Create table 'users'
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     email VARCHAR(255),
     original_weight FLOAT,
-    height INT,
+    feet INT,
+    inches INT,
+    height_inches INT,
     age INT,
     goal_weight FLOAT
 );
 
--- Create table 'weight_data'
-CREATE TABLE weight_data (
+  CREATE TABLE weight_data (
     entry_id SERIAL PRIMARY KEY,
     user_id INT,
     weight FLOAT,
@@ -24,7 +51,6 @@ CREATE TABLE weight_data (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
--- Create table 'food_entries'
 CREATE TABLE food_entries (
     entry_id SERIAL PRIMARY KEY,
     user_id INT,
@@ -34,7 +60,6 @@ CREATE TABLE food_entries (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
--- Create table 'water_intake'
 CREATE TABLE water_intake (
     entry_id SERIAL PRIMARY KEY,
     user_id INT,
@@ -43,11 +68,10 @@ CREATE TABLE water_intake (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
--- Create table 'exercise_entries'
-CREATE TABLE exercise_entries (
+CREATE TABLE activity_entries (
     entry_id SERIAL PRIMARY KEY,
     user_id INT,
-    exercise_name VARCHAR(255),
+    activity_name VARCHAR(255),
     sets INT,
     reps INT,
     lift_weight INT,
@@ -56,61 +80,28 @@ CREATE TABLE exercise_entries (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
--- Create table 'mood_tracker'
 CREATE TABLE mood_tracker (
     entry_id SERIAL PRIMARY KEY,
     user_id INT,
-    emotion VARCHAR(255),
+    emotion VARCHAR(255) CHECK (emotion IN ('Happy', 'Sad', 'Angry', 'Tranquil', 'Content', 'Anxious', 'Stressed', 'Overwhelmed', 'Excited')),
     intensity INT,
     entry_date DATE,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
--- Create table 'reminders'
 CREATE TABLE reminders (
     reminder_id SERIAL PRIMARY KEY,
     user_id INT,
     created_at DATE,
-    status VARCHAR(255),
+    status VARCHAR(255) CHECK (status IN ('Active', 'Inactive')),
     title VARCHAR(255),
     description TEXT,
     reminder_date DATE,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
-);-- Connect to a database (e.g. zenvibe_db), then run \i seed.sql  
--- (make sure you are in the same directory as seed.sql prior to running \i)
+);
+`
 
-
---users
-
-INSERT INTO users ( username, password_hash, email, original_weight, height, age, goal_weight) 
-VALUES  ( 'john_doe', 'password1', 'john@example.com', 160, 180, 25, 150),
-        ( 'alice_smith', 'password2', 'alice@example.com', 140, 165, 30, 130),
-        ( 'bob_jackson', 'password3', 'bob@example.com', 180, 175, 28, 170),
-        ( 'emma_watson', 'password4', 'emma@example.com', 130, 160, 22, 120),
-        ( 'david_jones', 'password5', 'david@example.com', 170, 185, 35, 160),
-        ( 'jane_doe', 'password6', 'jane@example.com', 150, 170, 28, 140),
-  ( 'robert_smith', 'password7', 'robert@example.com', 160, 175, 32, 155),
-        ( 'susan_jackson', 'password8', 'susan@example.com', 140, 160, 29, 130),
-  ( 'michael_watson', 'password9', 'michael@example.com', 180, 190, 30, 175),
-  ( 'olivia_jones', 'password10', 'olivia@example.com', 120, 150, 24, 110),
-  ( 'william_doe', 'password11', 'william@example.com', 155, 180, 26, 145),
-  ( 'emma_smith', 'password12', 'emma@example.com', 135, 165, 31, 125),
-  ( 'benjamin_jackson', 'password13', 'benjamin@example.com', 175, 170, 27, 165),
-  ( 'ava_watson', 'password14', 'ava@example.com', 125, 155, 23, 115),
-  ( 'james_jones', 'password15', 'james@example.com', 165, 185, 33, 155),
-  ( 'chloe_doe', 'password16', 'chloe@example.com', 140, 175, 29, 135),
-  ( 'ethan_smith', 'password17', 'ethan@example.com', 160, 180, 28, 150),
-  ( 'mia_jackson', 'password18', 'mia@example.com', 130, 160, 26, 120),
-  ( 'alexander_watson', 'password19', 'alexander@example.com', 170, 190, 32, 165),
-  ( 'sophia_jones', 'password20', 'sophia@example.com', 110, 150, 25, 105),
-  ( 'oliver_doe', 'password21', 'oliver@example.com', 150, 170, 30, 140),
-  ( 'emily_smith', 'password22', 'emily@example.com', 140, 165, 28, 130),
-  ( 'daniel_jackson', 'password23', 'daniel@example.com', 175, 180, 29, 160),
-  ( 'mia_watson', 'password24', 'mia@example.com', 120, 155, 22, 110),
-  ( 'logan_jones', 'password25', 'logan@example.com', 160, 185, 34, 150);
-       
-
---weight_data
+const insertQueries = `
 
 INSERT INTO weight_data (user_id, weight, entry_date) 
 VALUES
@@ -140,9 +131,6 @@ VALUES
   (24, 110.2, '2023-01-24'),
   (25, 175.5, '2023-01-25');
 
-
---food_entries
-
 INSERT INTO food_entries (user_id, food_name, calories, entry_date)
 VALUES
     (1, 'Chicken Salad', 350, '2023-01-01'),
@@ -170,8 +158,6 @@ VALUES
   (23, 'Spaghetti Bolognese', 400, '2023-01-23'),
   (24, 'Hummus and Veggies', 150, '2023-01-24'),
   (25, 'Grilled Chicken Wrap', 300, '2023-01-25');
-
---water_intake
 
 INSERT INTO water_intake (user_id, cups, entry_date)
 VALUES
@@ -201,10 +187,7 @@ VALUES
   (24, 6, '2023-01-24'),
   (25, 8, '2023-01-25');
 
-
---exercise_entries
-
-INSERT INTO exercise_entries (user_id, exercise_name, sets, reps, lift_weight, duration, entry_date)
+INSERT INTO activity_entries (user_id, activity_name, sets, reps, lift_weight, duration, entry_date)
 VALUES
     (1, 'Bench Press', 3, 10, 150, 30, '2023-01-01'),
     (2, 'Squats', 4, 12, 200, 45, '2023-01-02'),
@@ -231,9 +214,6 @@ VALUES
   (23, 'Tricep Dips', 3, 15, 20, 20, '2023-01-23'),
   (24, 'Elliptical Trainer', NULL, NULL, NULL, 30, '2023-01-24'),
   (25, 'Biking', NULL, NULL, NULL, 40, '2023-01-25');
-
-
---mood_tracker
 
 INSERT INTO mood_tracker (user_id, emotion, intensity, entry_date) 
 VALUES
@@ -263,8 +243,6 @@ VALUES
   (24, 'Content', 4, '2023-01-24'),
   (25, 'Anxious', 3, '2023-01-25');
 
---reminders
-
 INSERT INTO reminders (user_id, created_at, status, title, description, reminder_date) 
 VALUES
     (1, '2023-01-01 08:00:00', 'Active', 'Food Log', 'Log your meals for today', '2023-01-10'),
@@ -293,3 +271,12 @@ VALUES
   (24, '2023-01-24 07:00:00', 'Inactive', 'Morning Stretch', 'Start your day with a quick stretching routine', '2023-01-10'),
   (25, '2023-01-25 21:00:00', 'Active', 'Nighttime Wind Down', 'Create a calming routine before bedtime', '2023-01-09');
 
+`
+
+
+
+module.exports = {
+    users,
+    createTables,
+    insertQueries
+}
