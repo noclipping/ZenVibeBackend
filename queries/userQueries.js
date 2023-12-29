@@ -30,8 +30,8 @@ const updateUser = async (req, res) => {
     const updatedEmail = email || preExistingData.rows[0].email;
     const updatedOriginalWeight = isNaN(original_weight) ? preExistingData.rows[0].original_weight : Number(original_weight);
     const updatedFeet = isNaN(feet) || feet < 1 || feet > 8 ? preExistingData.rows[0].feet : Number(feet);
-    const updatedInches = isNaN(inches) || inches < 1 || inches > 11 ? preExistingData.rows[0].inches : Number(inches);
-    const updatedHeightInches = isNaN((updatedFeet * 12) + updatedInches) ? preExistingData.rows[0].height : Number(height);
+    const updatedInches = isNaN(inches) || inches < 1 || inches > 12 ? preExistingData.rows[0].inches : Number(inches);
+    const updatedHeightInches = (isNaN(updatedFeet) || isNaN(updatedInches) || updatedFeet < 0 || updatedInches < 0 || updatedInches >= 12) ? preExistingData.rows[0].height_inches : Number((updatedFeet * 12) + updatedInches);
     const updatedAge = isNaN(age) ? preExistingData.rows[0].age : Number(age);
     const updatedGoalWeight = isNaN(goal_weight) ? preExistingData.rows[0].goal_weight : Number(goal_weight);
 
