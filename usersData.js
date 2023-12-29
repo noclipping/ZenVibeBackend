@@ -10,7 +10,7 @@ const pool = new Pool ({
     port: process.env.DB_PORT,
 })
 
-//user data seeded before other data
+//user data seeded before other data; password is hashed before being inserted into the database
 async function seedDatabase() {
     
     try {
