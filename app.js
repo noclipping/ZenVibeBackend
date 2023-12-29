@@ -16,7 +16,7 @@ const app = express()
 const port = 3000
 
 passport.use(new LocalStrategy(
-  (username, password_hash, done) => {
+  (username, password, done) => {
     
     client.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
       if (err) {
@@ -24,7 +24,7 @@ passport.use(new LocalStrategy(
       }
 
       const user = result.rows[0];
-      if (!user || !bcrypt.compareSync(password_hash, user.password_hash)) {
+      if (!user || !bcrypt.compareSync(password, user.password_hash)) {
         return done(null, false)
       }
       return done(null, user);
