@@ -16,6 +16,7 @@ const deleteUser = (req, res) => {
         res.status(200).json(results.rows)
     })
 }
+//This is just an example.
 
 const updateUser = async (req, res) => {
     const userId = parseInt(req.params.id)
