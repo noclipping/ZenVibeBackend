@@ -17,6 +17,7 @@ const port = 3000
 
 passport.use(new LocalStrategy(
   (username, password_hash, done) => {
+    console.log("test2")
     client.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
       if (err) {
         return done(err)
@@ -70,9 +71,9 @@ app.post('/register', (req, res) => {
   let original_weight = req.body.original_weight
   let feet = req.body.feet
   let inches = req.body.inches
+  let height_inches = (feet * 12) + inches
   let age = req.body.age
   let goal_weight = req.body.goal_weight
-  let height_inches = (feet * 12) + inches
 
   // Check if username is already taken
   client.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
@@ -88,7 +89,7 @@ app.post('/register', (req, res) => {
     const hashedPassword = bcrypt.hashSync(requestedPassword, 10);
     console.log(hashedPassword)
 
-    client.query('INSERT INTO users (username, password_hash, email, original_weight, feet, inches, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING user_id',
+    client.query('INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING user_id',
 
       [username, hashedPassword, email, original_weight, feet, inches, height_inches, age, goal_weight], (err, result) => {
         if (err) {
@@ -106,8 +107,10 @@ app.post('/register', (req, res) => {
 
 
 app.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
+  console.log("test")
   const token = jwt.sign({ sub: req.user }, process.env.JWT_SECRET)
   res.json({ token });
+
 })
 
 app.get('/user',
