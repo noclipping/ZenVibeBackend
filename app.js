@@ -17,7 +17,7 @@ const port = 3000
 
 passport.use(new LocalStrategy(
   (username, password_hash, done) => {
-    console.log("test2")
+    
     client.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
       if (err) {
         return done(err)
@@ -87,7 +87,7 @@ app.post('/register', (req, res) => {
 
     // If username is available, hash the password and create the user
     const hashedPassword = bcrypt.hashSync(requestedPassword, 10);
-    console.log(hashedPassword)
+    console.log(hashedPassword, "hashed")
 
     client.query('INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING user_id',
 
@@ -107,7 +107,7 @@ app.post('/register', (req, res) => {
 
 
 app.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
-  console.log("test")
+  
   const token = jwt.sign({ sub: req.user }, process.env.JWT_SECRET)
   res.json({ token });
 
