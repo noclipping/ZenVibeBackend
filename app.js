@@ -9,7 +9,7 @@ const { Strategy, ExtractJwt } = require('passport-jwt');
 require('dotenv').config()
 const user = require('./queries/userQueries.js')
 const food = require('./queries/foodEntryQueries.js')
-const exercise = require('./queries/activityQueries.js')
+// const exercise = require('./queries/activityQueries.js')
 const db = require('./database.js')
 const client = db.pool
 
@@ -25,6 +25,7 @@ passport.use(new LocalStrategy(
 
       const user = result.rows[0];
       if (!user || !bcrypt.compareSync(password_hash, user.password_hash)) {
+        
         return done(null, false)
       }
       return done(null, user);
@@ -66,10 +67,12 @@ app.use(passport.initialize());
 app.post('/register', (req, res) => {
 
   let username = req.body.username;
-  let requestedPassword = req.body.password_hash;
+  let requestedPassword = req.body.password;
   let email = req.body.email
   let original_weight = req.body.original_weight
-  let height = req.body.height
+  let feet = req.body.feet
+  let inches = req.body.inches
+  // let height_inches = req.body.height_inches
   let age = req.body.age
   let goal_weight = req.body.goal_weight
 
@@ -87,9 +90,11 @@ app.post('/register', (req, res) => {
     const hashedPassword = bcrypt.hashSync(requestedPassword, 10);
     console.log(hashedPassword)
 
-    client.query('INSERT INTO users (username, password_hash, email, original_weight, height, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING user_id',
+    const height_inches = (feet * 12) + inches
 
-      [username, hashedPassword, email, original_weight, height, age, goal_weight], (err, result) => {
+    client.query('INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING user_id',
+
+      [username, hashedPassword, email, original_weight, feet, inches, height_inches, age, goal_weight], (err, result) => {
         if (err) {
           console.log(err, 'err')
 

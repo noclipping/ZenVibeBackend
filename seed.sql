@@ -10,9 +10,9 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     email VARCHAR(255),
     original_weight FLOAT,
-    height INT,
     feet INT,
     inches INT,
+    height_inches INT,
     age INT,
     goal_weight FLOAT
 );
@@ -84,32 +84,34 @@ CREATE TABLE reminders (
 
 --users
 
-INSERT INTO users ( username, password_hash, email, original_weight, height, age, goal_weight) 
-VALUES  ( 'john_doe', 'password1', 'john@example.com', 160, 180, 25, 150),
-        ( 'alice_smith', 'password2', 'alice@example.com', 140, 165, 30, 130),
-        ( 'bob_jackson', 'password3', 'bob@example.com', 180, 175, 28, 170),
-        ( 'emma_watson', 'password4', 'emma@example.com', 130, 160, 22, 120),
-        ( 'david_jones', 'password5', 'david@example.com', 170, 185, 35, 160),
-        ( 'jane_doe', 'password6', 'jane@example.com', 150, 170, 28, 140),
-  ( 'robert_smith', 'password7', 'robert@example.com', 160, 175, 32, 155),
-        ( 'susan_jackson', 'password8', 'susan@example.com', 140, 160, 29, 130),
-  ( 'michael_watson', 'password9', 'michael@example.com', 180, 190, 30, 175),
-  ( 'olivia_jones', 'password10', 'olivia@example.com', 120, 150, 24, 110),
-  ( 'william_doe', 'password11', 'william@example.com', 155, 180, 26, 145),
-  ( 'emma_smith', 'password12', 'emma@example.com', 135, 165, 31, 125),
-  ( 'benjamin_jackson', 'password13', 'benjamin@example.com', 175, 170, 27, 165),
-  ( 'ava_watson', 'password14', 'ava@example.com', 125, 155, 23, 115),
-  ( 'james_jones', 'password15', 'james@example.com', 165, 185, 33, 155),
-  ( 'chloe_doe', 'password16', 'chloe@example.com', 140, 175, 29, 135),
-  ( 'ethan_smith', 'password17', 'ethan@example.com', 160, 180, 28, 150),
-  ( 'mia_jackson', 'password18', 'mia@example.com', 130, 160, 26, 120),
-  ( 'alexander_watson', 'password19', 'alexander@example.com', 170, 190, 32, 165),
-  ( 'sophia_jones', 'password20', 'sophia@example.com', 110, 150, 25, 105),
-  ( 'oliver_doe', 'password21', 'oliver@example.com', 150, 170, 30, 140),
-  ( 'emily_smith', 'password22', 'emily@example.com', 140, 165, 28, 130),
-  ( 'daniel_jackson', 'password23', 'daniel@example.com', 175, 180, 29, 160),
-  ( 'mia_watson', 'password24', 'mia@example.com', 120, 155, 22, 110),
-  ( 'logan_jones', 'password25', 'logan@example.com', 160, 185, 34, 150);
+INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, goal_weight) 
+VALUES 
+    ('john_doe', 'password1', 'john@example.com', 160, 5, 11, 71, 25, 150),
+    ('alice_smith', 'password2', 'alice@example.com', 140, 5, 5, 65, 30, 130),
+    ('bob_jackson', 'password3', 'bob@example.com', 180, 5, 9, 69, 28, 170),
+    ('emma_watson', 'password4', 'emma@example.com', 130, 5, 3, 63, 22, 120),
+    ('david_jones', 'password5', 'david@example.com', 170, 6, 1, 73, 35, 160),
+    ('jane_doe', 'password6', 'jane@example.com', 150, 5, 7, 67, 28, 140),
+    ('robert_smith', 'password7', 'robert@example.com', 160, 5, 9, 69, 32, 155),
+    ('susan_jackson', 'password8', 'susan@example.com', 140, 5, 3, 63, 29, 130),
+    ('michael_watson', 'password9', 'michael@example.com', 180, 6, 2, 74, 30, 175),
+    ('olivia_jones', 'password10', 'olivia@example.com', 120, 5, 0, 60, 24, 110),
+    ('william_doe', 'password11', 'william@example.com', 155, 5, 11, 71, 26, 145),
+    ('emma_smith', 'password12', 'emma@example.com', 135, 5, 5, 65, 31, 125),
+    ('benjamin_jackson', 'password13', 'benjamin@example.com', 175, 5, 10, 70, 27, 165),
+    ('ava_watson', 'password14', 'ava@example.com', 125, 5, 3, 63, 23, 115),
+    ('james_jones', 'password15', 'james@example.com', 165, 6, 1, 73, 33, 155),
+    ('chloe_doe', 'password16', 'chloe@example.com', 140, 5, 9, 69, 29, 135),
+    ('ethan_smith', 'password17', 'ethan@example.com', 160, 5, 11, 71, 28, 150),
+    ('mia_jackson', 'password18', 'mia@example.com', 130, 5, 0, 60, 26, 120),
+    ('alexander_watson', 'password19', 'alexander@example.com', 170, 6, 2, 74, 32, 165),
+    ('sophia_jones', 'password20', 'sophia@example.com', 110, 5, 0, 60, 25, 105),
+    ('oliver_doe', 'password21', 'oliver@example.com', 150, 5, 7, 67, 30, 140),
+    ('emily_smith', 'password22', 'emily@example.com', 140, 5, 5, 65, 28, 130),
+    ('daniel_jackson', 'password23', 'daniel@example.com', 175, 5, 11, 71, 29, 160),
+    ('mia_watson', 'password24', 'mia@example.com', 120, 5, 3, 63, 22, 110),
+    ('logan_jones', 'password25', 'logan@example.com', 160, 6, 1, 73, 34, 150);
+
        
 
 --weight_data
