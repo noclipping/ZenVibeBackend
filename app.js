@@ -9,7 +9,6 @@ const { Strategy, ExtractJwt } = require('passport-jwt');
 require('dotenv').config()
 const user = require('./queries/userQueries.js')
 const food = require('./queries/foodEntryQueries.js')
-// const exercise = require('./queries/activityQueries.js')
 const db = require('./database.js')
 const client = db.pool
 
