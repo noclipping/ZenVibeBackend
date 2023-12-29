@@ -32,7 +32,7 @@ const createWaterIntake = (req, res) => {
 };
 
 const deleteWaterIntake = (req, res) => {
-    const intakeId = req.params.intake_id;
+    const intakeId = req.params.entry_id;
 
     db.pool.query(
         'DELETE FROM water_intake WHERE intake_id = $1 RETURNING *',
@@ -50,7 +50,7 @@ const deleteWaterIntake = (req, res) => {
 };
 
 const updateWaterIntake = (req, res) => {
-    const intakeId = req.params.intake_id;
+    const intakeId = req.params.entry_id;
     const { amount, date } = req.body;
 
     db.pool.query(

@@ -13,11 +13,11 @@ const getReminders = (req, res) => {
 };
 
 const createReminder = (req, res) => {
-    const { title, description, due_date } = req.body;
+    const { title, description, reminder_date } = req.body;
 
     db.pool.query(
-        'INSERT INTO reminders (title, description, due_date) VALUES ($1, $2, $3) RETURNING *',
-        [title, description, due_date],
+        'INSERT INTO reminders (title, description, reminder_date) VALUES ($1, $2, $3) RETURNING *',
+        [title, description, reminder_date],
         (err, result) => {
             if (err) {
                 console.error(err, 'ERROR');
@@ -50,7 +50,7 @@ const deleteReminder = (req, res) => {
 
 const updateReminder = (req, res) => {
     const reminderId = req.params.reminder_id;
-    const { title, description, due_date } = req.body;
+    const { title, description, reminder_date } = req.body;
 
     db.pool.query(
         'UPDATE reminders_data SET title = $1, description = $2, due_date = $3 WHERE reminder_id = $4 RETURNING *',

@@ -11,7 +11,8 @@ const user = require('./queries/userQueries.js')
 const food = require('./queries/foodEntryQueries.js')
 const db = require('./database.js')
 const client = db.pool
-
+const reminders = require('./queries/remindersQueries.js')
+const water = require('./queries/waterQueries.js')
 const app = express()
 const port = 3000
 
@@ -120,6 +121,8 @@ app.put('/user/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => { user.updateUser(req,res)})
 
+
+
 app.post('/food', 
   passport.authenticate('jwt', { session: false}),
   (req, res) => {food.addFood(req, res) })
@@ -135,6 +138,42 @@ app.delete('/food/:id',
 app.put('/food/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => { food.updateFood(req,res)})
+
+
+
+app.get('/reminders',
+passport.authenticate('jwt', {session: false}),
+(req, res) => {reminders.getReminders(req, res)})
+
+app.post('/reminders',
+passport.authenticate('jwt', {session: false}),
+(req, res)=> {reminders.createReminder(req, res)})
+
+app.delete('/reminders/:id',
+passport.authenticate('jwt', {session: false}),
+(req, res) => {reminders.deleteReminder(req, res)})
+
+app.put('/reminders/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { reminders.updateReminder(req,res)})
+
+
+
+  app.get('/water',
+  passport.authenticate('jwt', {session: false}),
+  (req, res) => {water.getWaterIntake(req, res)})
+  
+  app.post('/water',
+  passport.authenticate('jwt', {session: false}),
+  (req, res)=> {water.createWaterIntake(req, res)})
+  
+  app.delete('/water/:id',
+  passport.authenticate('jwt', {session: false}),
+  (req, res) => {water.deleteWaterIntake(req, res)})
+  
+  app.put('/water/:id',
+    passport.authenticate('jwt', { session: false }),
+    (req, res) => { water.updateWaterIntake(req,res)})
 
 
 app.listen(port, () => {
