@@ -11,12 +11,15 @@ const user = require('./queries/userQueries.js')
 const food = require('./queries/foodEntryQueries.js')
 const db = require('./database.js')
 const client = db.pool
+const weight = require('./queries/weightQueries.js')
 const reminders = require('./queries/remindersQueries.js')
 const water = require('./queries/waterQueries.js')
-const exercise = require('./queries/exerciseQueries.js')
 const weight = require('./queries/weightQueries.js')
+const activity = require('./queries/activityQueries.js')
 const app = express()
 const port = 3000
+
+
 
 passport.use(new LocalStrategy(
   (username, password, done) => {
@@ -200,21 +203,36 @@ app.put('/reminders/:id',
     (req, res) => { water.updateWaterIntake(req,res)})
 
 
-  app.get('/exercise',
+  app.get('/activity',
   passport.authenticate('jwt', {session: false}),
-  (req, res) => {exercise.getExerciseEntries(req, res)})
+  (req, res) => {exercise.getActivity(req, res)})
     
-  app.post('/exercise',
+  app.post('/activity',
   passport.authenticate('jwt', {session: false}),
-  (req, res)=> {exercise.createExerciseEntry(req, res)})
+  (req, res)=> {exercise.createActivity(req, res)})
     
-  app.delete('/exercise/:id',
+  app.delete('/activity/:id',
   passport.authenticate('jwt', {session: false}),
-  (req, res) => {exercise.deleteExerciseEntry(req, res)})
+  (req, res) => {exercise.deleteActivity(req, res)})
     
-  app.put('/exercise/:id',
+  app.put('/activity/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { exercise.updateExerciseEntry(req,res)})
+  (req, res) => { exercise.updateActivity(req,res)})
+
+// app.create
+app.get("/weight", (req, res)=>{
+  weight.getWeight(req, res)
+})
+//app.post.delete.put
+app.post('/weight', (req, res)=>{
+  weight.createWeight(req, res)
+})
+app.delete('/weight/:user_id', (req, res)=>{
+ weight.deleteWeight(req, res)
+})
+app.put('/weight/:user_id', (req, res)=>{
+  weight.updateWeight(req, res)
+});
 
 
 app.listen(port, () => {

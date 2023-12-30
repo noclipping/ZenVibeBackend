@@ -1,3 +1,4 @@
+
 const db = require('../database');
 
 const getWeight = (req, res) => {
@@ -57,6 +58,40 @@ const updateWeight = async (req, res) => {
     const updatedEntryDate = entry_date || preExistingData.rows[0].entry_date
 
     await db.pool.query(`UPDATE weight_data SET weight = $1, entry_date = $2 WHERE entry_id = ${req.params.id} RETURNING *`, [udpatedWeight, updatedEntryDate], (err, result) => {
+        if (err) {
+            console.error(err, 'ERROR');
+            res.status(500).send('Error updating weight');
+        } else {
+            console.log(result.rows[0], 'success');
+            res.status(200).json(result.rows[0]);
+        }
+    });
+};
+
+exports.getWeight = getWeight;
+exports.createWeight = createWeight;
+exports.deleteWeight = deleteWeight;
+exports.updateWeight = updateWeight;
+
+const deleteWeight = (req, res) => {
+    const userId = req.params.user_id;
+
+    db.pool.query('DELETE FROM weight_data WHERE user_id = $1 RETURNING *', [userId], (err, result) => {
+        if (err) {
+            console.error(err, 'ERROR');
+            res.status(500).send('Error deleting weight');
+        } else {
+            console.log(result.rows[0], 'success');
+            res.status(200).json(result.rows[0]);
+        }
+    });
+};
+
+const updateWeight = (req, res) => {
+    const userId = req.params.user_id;
+    const { weight } = req.body;
+
+    db.pool.query('UPDATE weight_data SET weight = $1 WHERE user_id = $2 RETURNING *', [weight, userId], (err, result) => {
         if (err) {
             console.error(err, 'ERROR');
             res.status(500).send('Error updating weight');
