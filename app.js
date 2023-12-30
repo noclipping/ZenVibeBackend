@@ -14,6 +14,7 @@ const client = db.pool
 const reminders = require('./queries/remindersQueries.js')
 const water = require('./queries/waterQueries.js')
 const exercise = require('./queries/exerciseQueries.js')
+const weight = require('./queries/weightQueries.js')
 const app = express()
 const port = 3000
 
