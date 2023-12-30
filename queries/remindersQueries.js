@@ -13,11 +13,17 @@ const getReminders = (req, res) => {
 };
 
 const createReminder = (req, res) => {
-    const { user_id, created_at, status, title, description, reminder_date } = req.body;
+  
+    const { created_at, status, title, description, reminder_date } = req.body;
+
+    if(!created_at || !status || !title || !description || !reminder_date){
+        return res.status(400).json({ error: 'All fields required.'})
+    }
 
     db.pool.query(
-        'INSERT INTO reminders (user_id, created_at, status, title, description, reminder_date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-        [user_id, created_at, status, title, description, reminder_date],
+        'INSERT INTO reminders (created_at, status, title, description, reminder_date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+        [created_at, status, title, description, reminder_date],
+
         (err, result) => {
             if (err) {
                 console.error(err, 'ERROR');
@@ -30,31 +36,40 @@ const createReminder = (req, res) => {
     );
 };
 
-const deleteReminder = (req, res) => {
-    const reminderId = req.params.reminder_id;
 
-    db.pool.query(
-        'DELETE FROM reminders WHERE reminder_id = $1 RETURNING *',
-        [reminderId],
-        (err, result) => {
-            if (err) {
-                console.error(err, 'ERROR');
+const deleteReminder = (req, res) => {
+    const reminderId = parseInt(req.params.id)
+
+    db.pool.query('DELETE FROM reminders WHERE reminder_id = $1 RETURNING *', [reminderId], (error, results) => {
+           if (error) {
+                console.error(error, 'ERROR');
                 res.status(500).send('Error deleting reminder');
             } else {
-                console.log(result.rows[0], 'success');
-                res.status(200).json(result.rows[0]);
+                console.log(results.rows[0], 'success');
+                res.status(200).json(results.rows);
             }
         }
     );
 };
 
-const updateReminder = (req, res) => {
-    const reminderId = req.params.reminder_id;
-    const { user_id, created_at, status, title, description, reminder_date } = req.body;
+
+const updateReminder = async (req, res) => {
+    
+    const { created_at, status, title, description, reminder_date } = req.body;
+    const preExistingData = await db.pool.query(`SELECT * FROM reminders WHERE reminder_id = $1`, [req.params.id])
+
+    const updatedCreatedAt = created_at || preExistingData.rows[0].created_at
+    const updatedStatus = status || preExistingData.rows[0].status
+    const updatedTitle = title || preExistingData.rows[0].title
+    const updatedDescription = description|| preExistingData.rows[0].description
+    const updatedReminderDate = reminder_date || preExistingData.rows[0].reminder_date
 
     db.pool.query(
-        'UPDATE reminders SET user_id = $1, created_at = $2, status = $3, title = $4, description = $5, reminder_date = $6 WHERE reminder_id = $7 RETURNING *',
-        [user_id, created_at, status, title, description, reminder_date, reminderId],
+        `UPDATE reminders SET created_at = $1, status = $2, title = $3, description = $4, reminder_date = $5 WHERE reminder_id = ${req.params.id} RETURNING *`,
+        [updatedCreatedAt, updatedStatus, updatedTitle, updatedDescription, updatedReminderDate],
+
+
+
         (err, result) => {
             if (err) {
                 console.error(err, 'ERROR');
