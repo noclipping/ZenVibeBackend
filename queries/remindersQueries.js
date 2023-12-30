@@ -4,7 +4,7 @@ const getReminders = (req, res) => {
     db.pool.query('SELECT * FROM reminders', (err, result) => {
         if (err) {
             console.error(err, 'ERROR');
-            res.status(500).send('Error retrieving reminders');
+            res.status(500).send('Error retrieving reminders data');
         } else {
             console.log(result.rows, 'success');
             res.status(200).json(result.rows);
@@ -13,11 +13,11 @@ const getReminders = (req, res) => {
 };
 
 const createReminder = (req, res) => {
-    const { title, description, reminder_date } = req.body;
+    const { user_id, created_at, status, title, description, reminder_date } = req.body;
 
     db.pool.query(
-        'INSERT INTO reminders (title, description, reminder_date) VALUES ($1, $2, $3) RETURNING *',
-        [title, description, reminder_date],
+        'INSERT INTO reminders (user_id, created_at, status, title, description, reminder_date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+        [user_id, created_at, status, title, description, reminder_date],
         (err, result) => {
             if (err) {
                 console.error(err, 'ERROR');
@@ -50,11 +50,11 @@ const deleteReminder = (req, res) => {
 
 const updateReminder = (req, res) => {
     const reminderId = req.params.reminder_id;
-    const { title, description, reminder_date } = req.body;
+    const { user_id, created_at, status, title, description, reminder_date } = req.body;
 
     db.pool.query(
-        'UPDATE reminders_data SET title = $1, description = $2, due_date = $3 WHERE reminder_id = $4 RETURNING *',
-        [title, description, due_date, reminderId],
+        'UPDATE reminders SET user_id = $1, created_at = $2, status = $3, title = $4, description = $5, reminder_date = $6 WHERE reminder_id = $7 RETURNING *',
+        [user_id, created_at, status, title, description, reminder_date, reminderId],
         (err, result) => {
             if (err) {
                 console.error(err, 'ERROR');
