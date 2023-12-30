@@ -11,8 +11,10 @@ const user = require('./queries/userQueries.js')
 const food = require('./queries/foodEntryQueries.js')
 const db = require('./database.js')
 const client = db.pool
+const weight = require('./queries/weightQueries.js')
 const reminders = require('./queries/remindersQueries.js')
 const water = require('./queries/waterQueries.js')
+const exercise = require('./queries/exerciseQueries.js')
 const app = express()
 const port = 3000
 
@@ -128,6 +130,23 @@ app.put('/user/:id',
 
 
 
+app.post('/Weight', 
+  passport.authenticate('jwt', { session: false}),
+  (req, res) => {food.getWeight(req, res) })
+
+app.get('/Weight',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { food.createWeight(req, res) }) 
+
+app.delete('/Weight/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { food.deleteWeight(req, res) })
+
+app.put('/Weight/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { food.updateWeight(req,res)})
+
+
 app.post('/food', 
   passport.authenticate('jwt', { session: false}),
   (req, res) => {food.addFood(req, res) })
@@ -179,6 +198,38 @@ app.put('/reminders/:id',
   app.put('/water/:id',
     passport.authenticate('jwt', { session: false }),
     (req, res) => { water.updateWaterIntake(req,res)})
+
+
+  app.get('/exercise',
+  passport.authenticate('jwt', {session: false}),
+  (req, res) => {exercise.getExerciseEntries(req, res)})
+    
+  app.post('/exercise',
+  passport.authenticate('jwt', {session: false}),
+  (req, res)=> {exercise.createExerciseEntry(req, res)})
+    
+  app.delete('/exercise/:id',
+  passport.authenticate('jwt', {session: false}),
+  (req, res) => {exercise.deleteExerciseEntry(req, res)})
+    
+  app.put('/exercise/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { exercise.updateExerciseEntry(req,res)})
+
+// app.create
+app.get("/weight", (req, res)=>{
+  weight.getWeight(req, res)
+})
+//app.post.delete.put
+app.post('/weight', (req, res)=>{
+  weight.createWeight(req, res)
+})
+app.delete('/weight/:user_id', (req, res)=>{
+ weight.deleteWeight(req, res)
+})
+app.put('/weight/:user_id', (req, res)=>{
+  weight.updateWeight(req, res)
+});
 
 
 app.listen(port, () => {
