@@ -11,6 +11,7 @@ const user = require('./queries/userQueries.js')
 const food = require('./queries/foodEntryQueries.js')
 const db = require('./database.js')
 const client = db.pool
+const weight = require('./queries/weightQueries.js')
 const reminders = require('./queries/remindersQueries.js')
 const water = require('./queries/waterQueries.js')
 const exercise = require('./queries/exerciseQueries.js')
@@ -214,6 +215,21 @@ app.put('/reminders/:id',
   app.put('/exercise/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => { exercise.updateExerciseEntry(req,res)})
+
+// app.create
+app.get("/weight", (req, res)=>{
+  weight.getWeight(req, res)
+})
+//app.post.delete.put
+app.post('/weight', (req, res)=>{
+  weight.createWeight(req, res)
+})
+app.delete('/weight/:user_id', (req, res)=>{
+ weight.deleteWeight(req, res)
+})
+app.put('/weight/:user_id', (req, res)=>{
+  weight.updateWeight(req, res)
+});
 
 
 app.listen(port, () => {
