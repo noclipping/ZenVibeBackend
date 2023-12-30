@@ -14,11 +14,19 @@ const getWaterIntake = (req, res) => {
 };
 
 const createWaterIntake = (req, res) => {
-    const { amount, date } = req.body;
+    const { cups, entry_date } = req.body;
+
+    if(!cups || !entry_date){
+        return res.status(400).json({error: 'All fields required.'})
+    }
+
+    if(isNaN(cups)){
+        return res.status(400).json({ error: 'Cups must be a number.'})
+    }
 
     db.pool.query(
-        'INSERT INTO water_intake (amount, date) VALUES ($1, $2) RETURNING *',
-        [amount, date],
+        'INSERT INTO water_intake (cups, entry_date) VALUES ($1, $2) RETURNING *',
+        [cups, entry_date],
         (err, result) => {
             if (err) {
                 console.error(err, 'ERROR');
@@ -32,13 +40,10 @@ const createWaterIntake = (req, res) => {
 };
 
 const deleteWaterIntake = (req, res) => {
-    const intakeId = req.params.entry_id;
+    const entryId = parseInt(req.params.id)
 
-    db.pool.query(
-        'DELETE FROM water_intake WHERE intake_id = $1 RETURNING *',
-        [intakeId],
-        (err, result) => {
-            if (err) {
+    db.pool.query('DELETE FROM water_intake WHERE entry_id = $1 RETURNING *', [entryId], (error, result) => {
+            if (error) {
                 console.error(err, 'ERROR');
                 res.status(500).send('Error deleting water intake data');
             } else {
@@ -49,13 +54,17 @@ const deleteWaterIntake = (req, res) => {
     );
 };
 
-const updateWaterIntake = (req, res) => {
-    const intakeId = req.params.entry_id;
-    const { amount, date } = req.body;
+const updateWaterIntake = async (req, res) => {
+    const { cups, entry_date } = req.body;
+    const preExistingData = await db.pool.query(`SELECT * FROM water_intake WHERE entry_id = $1`, [req.params.id])
 
-    db.pool.query(
-        'UPDATE water_intake SET amount = $1, date = $2 WHERE intake_id = $3 RETURNING *',
-        [amount, date, intakeId],
+
+    const updatedCups = cups || preExistingData.rows[0].cups
+    const updatedEntryDate = entry_date || preExistingData.rows[0].entry_date
+
+    const result = await db.pool.query(
+        `UPDATE water_intake SET cups = $1, entry_date = $2 WHERE entry_id = ${req.params.id} RETURNING *`,
+        [updatedCups, updatedEntryDate],
         (err, result) => {
             if (err) {
                 console.error(err, 'ERROR');
@@ -66,6 +75,7 @@ const updateWaterIntake = (req, res) => {
             }
         }
     );
+    
 };
 
 exports.getWaterIntake = getWaterIntake;
