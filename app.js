@@ -205,19 +205,19 @@ app.put('/reminders/:id',
 
   app.get('/activity',
   passport.authenticate('jwt', {session: false}),
-  (req, res) => {exercise.getActivity(req, res)})
+  (req, res) => {activity.getActivity(req, res)})
     
   app.post('/activity',
   passport.authenticate('jwt', {session: false}),
-  (req, res)=> {exercise.createActivity(req, res)})
+  (req, res)=> {activity.createActivity(req, res)})
     
   app.delete('/activity/:id',
   passport.authenticate('jwt', {session: false}),
-  (req, res) => {exercise.deleteActivity(req, res)})
+  (req, res) => {activity.deleteActivity(req, res)})
     
   app.put('/activity/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { exercise.updateActivity(req,res)})
+  (req, res) => {activity.updateActivity(req,res)})
 
 // app.create
 app.get("/weight", (req, res)=>{
