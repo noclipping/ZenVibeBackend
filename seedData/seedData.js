@@ -28,7 +28,7 @@ const users = [
 ]
 
 const createTables = `
-DROP TABLE IF EXISTS users, weight_data, food_entries, water_intake, activity_entries, mood_tracker, reminders;
+DROP TABLE IF EXISTS users, weight_data, food_entries, water_intake, activity_entries, mood_tracker, reminders cascade;
 
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,

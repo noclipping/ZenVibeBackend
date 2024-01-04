@@ -63,7 +63,12 @@ passport.use('jwt', new Strategy(
   }
 ));
 
-app.use(cors())
+const corsOptions = {
+  origin: 'http://localhost:5173', // or your frontend origin
+  credentials: true, // to allow sessions
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
@@ -112,11 +117,24 @@ app.post('/register', (req, res) => {
 
 
 app.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
+  // Assuming user authentication is successful, and `req.user` contains the authenticated user
+  const token = jwt.sign({ sub: req.user.user_id }, process.env.JWT_SECRET, { expiresIn: '1d' }); // Adjust the expiresIn as necessary
   
-  const token = jwt.sign({ sub: req.user }, process.env.JWT_SECRET)
-  res.json({ token });
+  // Set the token as an HTTP-only cookie
+  res.cookie('jwtToken', token, {
+      httpOnly: true, // The cookie can't be accessed by client-side JS
+      secure: process.env.NODE_ENV === 'production', // On production, use secure cookies
+      sameSite: 'strict' // Helps mitigate CSRF attacks
+  });
 
-})
+  // Send a success response
+  res.status(200).json({ success: true });
+});
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('jwtToken');
+  res.json({ message: 'Logged out successfully' });
+});
 
 app.get('/user',
   passport.authenticate('jwt', { session: false }),
