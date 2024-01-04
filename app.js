@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require(cors)
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const jwt = require('jsonwebtoken');
@@ -17,8 +18,6 @@ const water = require('./queries/waterQueries.js')
 const activity = require('./queries/activityQueries.js')
 const app = express()
 const port = 3000
-
-
 
 passport.use(new LocalStrategy(
   (username, password, done) => {
@@ -64,6 +63,7 @@ passport.use('jwt', new Strategy(
   }
 ));
 
+app.use(cors())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
