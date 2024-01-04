@@ -11,8 +11,10 @@ const user = require('./queries/userQueries.js')
 const food = require('./queries/foodEntryQueries.js')
 const db = require('./database.js')
 const client = db.pool
+const weight = require('./queries/weightQueries.js')
 const reminders = require('./queries/remindersQueries.js')
 const water = require('./queries/waterQueries.js')
+const weight = require('./queries/weightQueries.js')
 const activity = require('./queries/activityQueries.js')
 const app = express()
 const port = 3000
@@ -131,21 +133,21 @@ app.put('/user/:id',
 
 
 
-app.post('/Weight', 
+app.post('/weight', 
   passport.authenticate('jwt', { session: false}),
-  (req, res) => {food.getWeight(req, res) })
+  (req, res) => {weight.createWeight(req, res) })
 
-app.get('/Weight',
+app.get('/weight',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { food.createWeight(req, res) }) 
+  (req, res) => { weight.getWeight(req, res) }) 
 
-app.delete('/Weight/:id',
+app.delete('/weight/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { food.deleteWeight(req, res) })
+  (req, res) => { weight.deleteWeight(req, res) })
 
-app.put('/Weight/:id',
+app.put('/weight/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { food.updateWeight(req,res)})
+  (req, res) => { weight.updateWeight(req,res)})
 
 
 app.post('/food', 
@@ -216,6 +218,21 @@ app.put('/reminders/:id',
   app.put('/activity/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {activity.updateActivity(req,res)})
+
+// app.create
+app.get("/weight", (req, res)=>{
+  weight.getWeight(req, res)
+})
+//app.post.delete.put
+app.post('/weight', (req, res)=>{
+  weight.createWeight(req, res)
+})
+app.delete('/weight/:user_id', (req, res)=>{
+ weight.deleteWeight(req, res)
+})
+app.put('/weight/:user_id', (req, res)=>{
+  weight.updateWeight(req, res)
+});
 
 
 app.listen(port, () => {
