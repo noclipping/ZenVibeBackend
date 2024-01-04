@@ -28,12 +28,7 @@ const createWaterIntake = (req, res) => {
         'INSERT INTO water_intake (cups, entry_date) VALUES ($1, $2) RETURNING *',
         [cups, entry_date],
 
-    const { user_id, cups, entry_date } = req.body;
-
-    db.pool.query(
-        'INSERT INTO water_intake (user_id, cups, entry_date) VALUES ($1, $2, $3) RETURNING *',
-        [user_id, cups, entry_date],
-
+    
         (err, result) => {
             if (err) {
                 console.error(err, 'ERROR');
@@ -49,13 +44,9 @@ const createWaterIntake = (req, res) => {
 const deleteWaterIntake = (req, res) => {
     const entryId = parseInt(req.params.id)
 
-
-    db.pool.query('DELETE FROM water_intake WHERE entry_id = $1 RETURNING *', [entryId], (error, result) => {
-            if (error) {
-
     db.pool.query(
         'DELETE FROM water_intake WHERE entry_id = $1 RETURNING *',
-        [intakeId],
+        [entryId],
         (err, result) => {
             if (err) {
                 console.error(err, 'ERROR');
@@ -80,14 +71,6 @@ const updateWaterIntake = async (req, res) => {
     const result = await db.pool.query(
         `UPDATE water_intake SET cups = $1, entry_date = $2 WHERE entry_id = ${req.params.id} RETURNING *`,
         [updatedCups, updatedEntryDate],
-
-const updateWaterIntake = (req, res) => {
-    const entryId = req.params.entry_id;
-    const { user_id, cups, entry_date } = req.body;
-
-    db.pool.query(
-        'UPDATE water_intake SET user_id = $1, cups = $2, entry_date = $3 WHERE entry_id = $4 RETURNING *',
-        [user_id, cups, entry_date, entryId],
 
         (err, result) => {
             if (err) {
