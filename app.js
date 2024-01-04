@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require(cors)
+const cors = require('cors')
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const jwt = require('jsonwebtoken');
