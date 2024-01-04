@@ -16,7 +16,7 @@ const createActivity = (req, res) => {
     const { activity_name, sets, reps, lift_weight, duration, entry_date } = req.body;
 
     if(!activity_name || !entry_date){
-        return res.status(400).json( { error: "All fields required." })
+        return res.status(400).json( { error: "This field is required." })
     }
 
     if(isNaN(sets)){
