@@ -74,46 +74,51 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
 app.post('/register', (req, res) => {
-
   let username = req.body.username;
   let requestedPassword = req.body.password_hash;
-  let email = req.body.email
-  let original_weight = req.body.original_weight
-  let feet = req.body.feet
-  let inches = req.body.inches
-  let height_inches = (feet * 12) + inches
-  let age = req.body.age
-  let goal_weight = req.body.goal_weight
+  let email = req.body.email;
+  let original_weight = req.body.original_weight;
+  let feet = req.body.feet;
+  let inches = req.body.inches;
+  let height_inches = (feet * 12) + inches;
+  let age = req.body.age;
+  let goal_weight = req.body.goal_weight;
 
-  // Check if username is already taken
   client.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: err });
-    }
-
-    if (result.rows.length > 0) {
-      return res.status(400).json({ error: 'Username is already taken' });
-    }
-
-    // If username is available, hash the password and create the user
-    const hashedPassword = bcrypt.hashSync(requestedPassword, 10);
-    console.log(hashedPassword, "hashed")
-
-    client.query('INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING user_id',
-
-      [username, hashedPassword, email, original_weight, feet, inches, height_inches, age, goal_weight], (err, result) => {
-        if (err) {
-          console.log(err, 'err')
-
+      if (err) {
           return res.status(500).json({ error: 'Internal Server Error' });
-        }
+      }
 
-        const user = result.rows[0]
-        const token = jwt.sign({ sub: user }, process.env.JWT_SECRET);
-        res.json({ token });
-      });
+      if (result.rows.length > 0) {
+          return res.status(400).json({ error: 'Username is already taken' });
+      }
+
+      const hashedPassword = bcrypt.hashSync(requestedPassword, 10);
+
+      client.query('INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
+          [username, hashedPassword, email, original_weight, feet, inches, height_inches, age, goal_weight], (err, result) => {
+              if (err) {
+                  return res.status(500).json({ error: 'Internal Server Error' });
+              }
+
+              const newUser = result.rows[0];
+
+              // Create token similarly to the login route
+              const token = jwt.sign({ sub: newUser.user_id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+              // Set the token as an HTTP-only cookie
+              res.cookie('jwtToken', token, {
+                  httpOnly: true,
+                  secure: process.env.NODE_ENV === 'production',
+                  sameSite: 'strict'
+              });
+
+              // Send a success response
+              res.status(200).json({ success: true });
+          });
   });
 });
+
 
 
 app.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
@@ -132,8 +137,8 @@ app.post('/login', passport.authenticate('local', { session: false }), (req, res
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('jwtToken');
-  res.json({ message: 'Logged out successfully' });
+    res.clearCookie('jwtToken');
+    res.json({ message: 'Logged out successfully' });
 });
 
 app.get('/user',
