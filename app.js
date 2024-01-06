@@ -174,7 +174,7 @@ app.post('/weight/:id',
 
 app.get('/weight/:id',
   passport.authenticate('jwt', { session: false }),
-  deleteUpdateAuthorization,
+  checkAuthorization,
   (req, res) => { weight.getWeight(req, res) })
 
 app.delete('/weight/:id',
