@@ -34,9 +34,9 @@ const createWeight = (req, res) => {
     db.pool.query('INSERT INTO weight_data (user_id, weight, entry_date) VALUES ($1, $2, $3) RETURNING *', [userId, weight, entry_date], (err, result) => {
         if (err) {
             console.error(err, 'ERROR');
-            res.status(500).send('Error creating weight');
+            res.status(500).send('Error creating weight entry');
         } else {
-            console.log(result.rows[0], 'Weight added!');
+            console.log(result.rows[0], 'Weight entry added!');
             res.status(201).json(result.rows[0]);
         }
     });
@@ -59,7 +59,7 @@ const deleteWeight = async (req, res) => {
 
         return deletedWeight
     } catch (error) {
-        console.error(error, 'ERROR deleting weight entry.')
+        console.error(error, 'Error deleting weight entry.')
         throw error
     }
 };
