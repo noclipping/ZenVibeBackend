@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors')
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const jwt = require('jsonwebtoken');
@@ -17,8 +18,6 @@ const water = require('./queries/waterQueries.js')
 const activity = require('./queries/activityQueries.js')
 const app = express()
 const port = 3000
-
-
 
 passport.use(new LocalStrategy(
   (username, password, done) => {
@@ -64,6 +63,12 @@ passport.use('jwt', new Strategy(
   }
 ));
 
+const corsOptions = {
+  origin: 'http://localhost:5173', // or your frontend origin
+  credentials: true, // to allow sessions
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
@@ -92,62 +97,73 @@ async function deleteUpdateAuthorization(req, res, next, tableName) {
 }
 
 app.post('/register', (req, res) => {
-
   let username = req.body.username;
   let requestedPassword = req.body.password_hash;
-  let email = req.body.email
-  let original_weight = req.body.original_weight
-  let feet = req.body.feet
-  let inches = req.body.inches
-  let height_inches = (feet * 12) + inches
-  let age = req.body.age
-  let goal_weight = req.body.goal_weight
+  let email = req.body.email;
+  let original_weight = req.body.original_weight;
+  let feet = req.body.feet;
+  let inches = req.body.inches;
+  let height_inches = (feet * 12) + inches;
+  let age = req.body.age;
+  let goal_weight = req.body.goal_weight;
 
-  // Check if username is already taken
   client.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: err });
-    }
-
-    if (result.rows.length > 0) {
-      return res.status(400).json({ error: 'Username is already taken' });
-    }
-
-    if (!username || !requestedPassword || !email || !original_weight || !feet || !inches || !height_inches || !age || !goal_weight) {
-      return res.status(400).json({ error: 'All fields required.' })
-    }
-
-    // If username is available, hash the password and create the user
-    const hashedPassword = bcrypt.hashSync(requestedPassword, 10);
-    console.log(hashedPassword, "hashed")
-
-
-
-    client.query('INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING user_id',
-
-      [username, hashedPassword, email, original_weight, feet, inches, height_inches, age, goal_weight], (err, result) => {
-        if (err) {
-          console.log(err, 'err')
-
+      if (err) {
           return res.status(500).json({ error: 'Internal Server Error' });
-        }
+      }
 
-        const user = result.rows[0]
-        const token = jwt.sign({ sub: user }, process.env.JWT_SECRET);
-        res.json({ token });
-      });
+      if (result.rows.length > 0) {
+          return res.status(400).json({ error: 'Username is already taken' });
+      }
+
+
+      const hashedPassword = bcrypt.hashSync(requestedPassword, 10);
+
+      client.query('INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
+          [username, hashedPassword, email, original_weight, feet, inches, height_inches, age, goal_weight], (err, result) => {
+              if (err) {
+                  return res.status(500).json({ error: 'Internal Server Error' });
+              }
+              const newUser = result.rows[0];
+
+              // Create token similarly to the login route
+              const token = jwt.sign({ sub: newUser.user_id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+              // Set the token as an HTTP-only cookie
+              res.cookie('jwtToken', token, {
+                  httpOnly: true,
+                  secure: process.env.NODE_ENV === 'production',
+                  sameSite: 'strict'
+              });
+
+              // Send a success response
+              res.status(200).json({ success: true });
+          });
   });
 });
 
 
-app.post('/login',
-  passport.authenticate('local', { session: false }), (req, res) => {
 
-    console.log(`Welcome, ${req.user.username}!`);
 
-    const token = jwt.sign({ sub: req.user }, process.env.JWT_SECRET);
-    res.json({ token });
+app.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
+  // Assuming user authentication is successful, and `req.user` contains the authenticated user
+  const token = jwt.sign({ sub: req.user.user_id }, process.env.JWT_SECRET, { expiresIn: '1d' }); // Adjust the expiresIn as necessary
+  
+  // Set the token as an HTTP-only cookie
+  res.cookie('jwtToken', token, {
+      httpOnly: true, // The cookie can't be accessed by client-side JS
+      secure: process.env.NODE_ENV === 'production', // On production, use secure cookies
+      sameSite: 'strict' // Helps mitigate CSRF attacks
   });
+
+  // Send a success response
+  res.status(200).json({ success: true });
+});
+
+app.post('/logout', (req, res) => {
+    res.clearCookie('jwtToken');
+    res.json({ message: 'Logged out successfully' });
+});
 
 
 app.get('/user/:id',
