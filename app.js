@@ -36,14 +36,23 @@ passport.use(new LocalStrategy(
   }
 ))
 
+const cookieExractor = function(req){
+  let token = null
+
+  if(req && req.cookies){
+    token = req.cookies['jwtToken']
+  }
+  return token
+}
+
 passport.use('jwt', new Strategy(
   {
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    jwtFromRequest: cookieExractor,
     secretOrKey: process.env.JWT_SECRET
   },
   (jwtPayload, done) => {
     // Log the extracted token
-    const token = ExtractJwt.fromAuthHeaderAsBearerToken();
+    const token = cookieExractor;
     console.log('Extracted Token:', token);
 
     console.log('JWT Payload:', jwtPayload); // Log the payload
