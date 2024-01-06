@@ -68,6 +68,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
+function checkAuthorization(req, res, next) {
+console.log( (req.params.id), typeof(req.user.user_id))
+  if(Number(req.params.id) !== Number(req.user.user_id)){
+    return res.status(403).json({ error: "Unauthorized user."})
+  }
+  next()
+}
+
 app.post('/register', (req, res) => {
 
   let username = req.body.username;
@@ -90,9 +98,15 @@ app.post('/register', (req, res) => {
       return res.status(400).json({ error: 'Username is already taken' });
     }
 
+    if(!username || !requestedPassword || !email || !original_weight || !feet || !inches || !height_inches || !age || !goal_weight){
+      return res.status(400).json({ error: 'All fields required.'})
+    }
+
     // If username is available, hash the password and create the user
     const hashedPassword = bcrypt.hashSync(requestedPassword, 10);
     console.log(hashedPassword, "hashed")
+
+   
 
     client.query('INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING user_id',
 
@@ -111,23 +125,29 @@ app.post('/register', (req, res) => {
 });
 
 
-app.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
+app.post('/login', 
+  passport.authenticate('local', { session: false }), (req, res) => {
   
-  const token = jwt.sign({ sub: req.user }, process.env.JWT_SECRET)
+  console.log(`Welcome, ${req.user.username}!`);
+
+  const token = jwt.sign({ sub: req.user }, process.env.JWT_SECRET);
   res.json({ token });
+});
 
-})
 
-app.get('/user',
+app.get('/user/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { user.getUser(req, res) }) 
 
 app.delete('/user/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { user.deleteUser(req, res) })
 
 app.put('/user/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { user.updateUser(req,res)})
 
 
@@ -142,10 +162,12 @@ app.get('/weight',
 
 app.delete('/weight/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { weight.deleteWeight(req, res) })
 
 app.put('/weight/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { weight.updateWeight(req,res)})
 
 

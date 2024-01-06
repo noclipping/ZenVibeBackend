@@ -15,6 +15,7 @@ const getWeight = (req, res) => {
 
 const createWeight = (req, res) => {
     const { weight, entry_date } = req.body;
+    const userId = req.user.user_id
 
     if(!weight || !entry_date){
         return res.status(400).json({ error: 'All fields required.'})
@@ -24,12 +25,12 @@ const createWeight = (req, res) => {
         return res.status(400).json({ error: 'Weight must be a number.'})
     }
 
-    db.pool.query('INSERT INTO weight_data (weight, entry_date) VALUES ($1, $2) RETURNING *', [weight, entry_date], (err, result) => {
+    db.pool.query('INSERT INTO weight_data (user_id, weight, entry_date) VALUES ($1, $2, $3) RETURNING *', [userId, weight, entry_date], (err, result) => {
         if (err) {
             console.error(err, 'ERROR');
             res.status(500).send('Error creating weight');
         } else {
-            console.log(result.rows[0], 'success');
+            console.log(result.rows[0], 'Weight added!');
             res.status(201).json(result.rows[0]);
         }
     });
@@ -43,7 +44,7 @@ const deleteWeight = (req, res) => {
             console.error(err, 'ERROR');
             res.status(500).send('Error deleting weight');
         } else {
-            console.log(result.rows[0], 'success');
+            console.log(result.rows[0], 'Weight deleted!');
             res.status(200).json(result.rows[0]);
         }
     });
@@ -52,17 +53,18 @@ const deleteWeight = (req, res) => {
 const updateWeight = async (req, res) => {
     
     const { weight, entry_date } = req.body;
+    const userId = req.params.id
     const preExistingData = await db.pool.query(`SELECT * FROM weight_data WHERE entry_id = $1`, [req.params.id])
 
     const udpatedWeight = weight || preExistingData.rows[0].weight
     const updatedEntryDate = entry_date || preExistingData.rows[0].entry_date
 
-    await db.pool.query(`UPDATE weight_data SET weight = $1, entry_date = $2 WHERE entry_id = ${req.params.id} RETURNING *`, [udpatedWeight, updatedEntryDate], (err, result) => {
+    await db.pool.query(`UPDATE weight_data SET user_id = $1, weight = $2, entry_date = $3 WHERE entry_id = ${req.params.id} RETURNING *`, [userId, udpatedWeight, updatedEntryDate], (err, result) => {
         if (err) {
             console.error(err, 'ERROR');
             res.status(500).send('Error updating weight');
         } else {
-            console.log(result.rows[0], 'success');
+            console.log(result.rows[0], 'Weight updated!');
             res.status(200).json(result.rows[0]);
         }
     });
