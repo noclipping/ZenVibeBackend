@@ -28,11 +28,17 @@ const addFood = async (req, res) => {
         return res.status(400).json({ error: 'Calories must be a number.' })
     }
 
-    const result = await db.pool.query(
-        "INSERT INTO food_entries (user_id, food_name, calories, entry_date) VALUES ($1, $2, $3, $4) RETURNING *",
-        [userId, food_name, calories, entry_date]
+    db.pool.query("INSERT INTO food_entries (user_id, food_name, calories, entry_date) VALUES ($1, $2, $3, $4) RETURNING *", [userId, food_name, calories, entry_date], (err, result) => {
+        if (err) {
+            console.error(err, 'ERROR');
+            res.status(500).send('Error creating food entry');
+        } else {
+            console.log(result.rows[0], 'Food entry added!');
+            res.status(201).json(result.rows[0]);
+        }
+    }
     )
-    res.json(result.rows[0])
+   
 }
 
 
@@ -53,7 +59,7 @@ const deleteFood = async (req, res) => {
 
         return deletedWeight
     } catch (error) {
-        console.error(error, 'ERROR deleting food entry.')
+        console.error(error, 'Error deleting food entry.')
         throw error
     }
 }

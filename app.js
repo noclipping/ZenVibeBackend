@@ -209,37 +209,44 @@ app.put('/food/:id',
   (req, res) => { food.updateFood(req, res) })
 
 
-app.get('/water',
+app.get('/water/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { water.getWaterIntake(req, res) })
 
-app.post('/water',
+app.post('/water/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => { water.createWaterIntake(req, res) })
 
 app.delete('/water/:id',
   passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
   (req, res) => { water.deleteWaterIntake(req, res) })
 
 app.put('/water/:id',
   passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
   (req, res) => { water.updateWaterIntake(req, res) })
 
 
-app.get('/activity',
+app.get('/activity/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { activity.getActivity(req, res) })
 
-app.post('/activity',
+app.post('/activity/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { activity.createActivity(req, res) })
 
 app.delete('/activity/:id',
   passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
   (req, res) => { activity.deleteActivity(req, res) })
 
 app.put('/activity/:id',
   passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
   (req, res) => { activity.updateActivity(req, res) })
 
 
