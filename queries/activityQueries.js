@@ -83,6 +83,10 @@ const updateActivity = async (req, res) => {
     const { activity_name, sets, reps, lift_weight, duration, entry_date } = req.body;
     const preExistingData = await db.pool.query(`SELECT * FROM activity_entries WHERE entry_id = $1`, [req.params.id] )
 
+    if(preExistingData.rows.length === 0){
+        return res.status(404).json({ error: "Activity entry does not exist."})
+    }
+
     const updatedActivityName = activity_name || preExistingData.rows[0].activity_name
     const updatedSets = sets || preExistingData.rows[0].sets
     const updatedReps = reps|| preExistingData.rows[0].reps
