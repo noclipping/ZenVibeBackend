@@ -14,6 +14,8 @@ const client = db.pool
 const reminders = require('./queries/remindersQueries.js')
 const water = require('./queries/waterQueries.js')
 const exercise = require('./queries/exerciseQueries.js')
+const weight = require('./queries/weightQueries.js')
+const mood = require('./queries/moodQueries.js')
 const app = express()
 const port = 3000
 
@@ -108,12 +110,27 @@ app.post('/register', (req, res) => {
 });
 
 
-app.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
+  app.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
   
-  const token = jwt.sign({ sub: req.user }, process.env.JWT_SECRET)
-  res.json({ token });
+    // Sign the token with the user information
+    const token = jwt.sign({ sub: req.user }, process.env.JWT_SECRET);
+   
+    // Set the token in an HTTP-only cookie
+    res.cookie('jwt', token, {
+      httpOnly: true, // The cookie is not accessible via JavaScript (for security reasons)
+      secure: process.env.NODE_ENV !== 'development', // On production, set secure to true to send the cookie over HTTPS only
+      sameSite: 'strict', // Strictly same site
+      maxAge: 24 * 60 * 60 * 1000 // Set the cookie to expire after 1 day (adjust as necessary)
+    });
+   
+    // Send a response indicating successful login
+    res.status(200).send('Logged in successfully');
+    
+  });
+  
 
-})
+
+
 
 app.get('/user',
   passport.authenticate('jwt', { session: false }),
@@ -129,21 +146,24 @@ app.put('/user/:id',
 
 
 
-app.post('/Weight', 
+
+app.post('/weight', 
   passport.authenticate('jwt', { session: false}),
   (req, res) => {food.getWeight(req, res) })
 
-app.get('/Weight',
+app.get('/weight',
   passport.authenticate('jwt', { session: false }),
   (req, res) => { food.createWeight(req, res) }) 
 
-app.delete('/Weight/:id',
+app.delete('/weight/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => { food.deleteWeight(req, res) })
 
-app.put('/Weight/:id',
+app.put('/weight/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => { food.updateWeight(req,res)})
+
+
 
 
 app.post('/food', 
@@ -161,6 +181,8 @@ app.delete('/food/:id',
 app.put('/food/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => { food.updateFood(req,res)})
+
+
 
 
 
@@ -182,6 +204,7 @@ app.put('/reminders/:id',
 
 
 
+
   app.get('/water',
   passport.authenticate('jwt', {session: false}),
   (req, res) => {water.getWaterIntake(req, res)})
@@ -199,6 +222,8 @@ app.put('/reminders/:id',
     (req, res) => { water.updateWaterIntake(req,res)})
 
 
+
+
   app.get('/exercise',
   passport.authenticate('jwt', {session: false}),
   (req, res) => {exercise.getExerciseEntries(req, res)})
@@ -214,6 +239,28 @@ app.put('/reminders/:id',
   app.put('/exercise/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => { exercise.updateExerciseEntry(req,res)})
+
+
+
+
+
+  app.get('/mood',
+  passport.authenticate('jwt', {session: false}),
+  (req, res) => {mood. getMood(req, res)})
+    
+  app.post('/mood',
+  passport.authenticate('jwt', {session: false}),
+  (req, res)=> {mood.createMood(req, res)})
+    
+  app.delete('/mood/:id',
+  passport.authenticate('jwt', {session: false}),
+  (req, res) => {mood.deleteMood(req, res)})
+    
+  app.put('/mood/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {mood.updateMood(req,res)})
+
+
 
 
 app.listen(port, () => {
