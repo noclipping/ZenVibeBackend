@@ -28,7 +28,7 @@ const users = [
 ]
 
 const createTables = `
-DROP TABLE IF EXISTS users, weight_data, food_entries, water_intake, activity_entries, mood_tracker, reminders;
+DROP TABLE IF EXISTS users, weight_data, food_entries, water_intake, activity_entries, mood_tracker, reminders cascade;
 
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
@@ -83,7 +83,7 @@ CREATE TABLE activity_entries (
 CREATE TABLE mood_tracker (
     entry_id SERIAL PRIMARY KEY,
     user_id INT,
-    emotion VARCHAR(255) CHECK (emotion IN ('Happy', 'Sad', 'Angry', 'Tranquil', 'Content', 'Anxious', 'Stressed', 'Overwhelmed', 'Excited')),
+    emotion VARCHAR(255) CHECK (emotion IN ('Happy', 'Sad', 'Angry', 'Tranquil', 'Content', 'Anxious', 'Stressed', 'Overwhelmed', 'Excited', 'Bored', 'Lonely', 'Inspired', 'Frustrated', 'Energetic', 'Confused')),
     intensity INT,
     entry_date DATE,
     FOREIGN KEY (user_id) REFERENCES users(user_id)

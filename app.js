@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors')
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const jwt = require('jsonwebtoken');
@@ -11,15 +12,16 @@ const user = require('./queries/userQueries.js')
 const food = require('./queries/foodEntryQueries.js')
 const db = require('./database.js')
 const client = db.pool
+const weight = require('./queries/weightQueries.js')
 const reminders = require('./queries/remindersQueries.js')
 const water = require('./queries/waterQueries.js')
-const exercise = require('./queries/exerciseQueries.js')
+const activity = require('./queries/activityQueries.js')
 const app = express()
 const port = 3000
 
 passport.use(new LocalStrategy(
   (username, password, done) => {
-    
+
     client.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
       if (err) {
         return done(err)
@@ -61,159 +63,231 @@ passport.use('jwt', new Strategy(
   }
 ));
 
+const corsOptions = {
+  origin: 'http://localhost:5173', // or your frontend origin
+  credentials: true, // to allow sessions
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
-app.post('/register', (req, res) => {
+function checkAuthorization(req, res, next) {
+  console.log((req.params.id), typeof (req.user.user_id))
+  if (Number(req.params.id) !== Number(req.user.user_id)) {
+    return res.status(403).json({ error: "Unauthorized user." })
+  }
+  next()
+}
 
+async function deleteUpdateAuthorization(req, res, next, tableName) {
+  const entryId = req.params.id
+  const userId = req.user.user_id
+  // const userId = 5
+
+  const result = await db.pool.query(`SELECT entry_id FROM ${tableName} WHERE entry_id = $1 AND user_id = $2`, [entryId, userId])
+
+  console.log(userId, "THIS")
+  if (result.rows.length === 0) {
+    return res.status(404).json({ error: 'Entry not found.' });
+  }
+  next()
+
+}
+
+app.post('/register', (req, res) => {
   let username = req.body.username;
   let requestedPassword = req.body.password_hash;
-  let email = req.body.email
-  let original_weight = req.body.original_weight
-  let feet = req.body.feet
-  let inches = req.body.inches
-  let height_inches = (feet * 12) + inches
-  let age = req.body.age
-  let goal_weight = req.body.goal_weight
+  let email = req.body.email;
+  let original_weight = req.body.original_weight;
+  let feet = req.body.feet;
+  let inches = req.body.inches;
+  let height_inches = (feet * 12) + inches;
+  let age = req.body.age;
+  let goal_weight = req.body.goal_weight;
 
-  // Check if username is already taken
   client.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: err });
-    }
-
-    if (result.rows.length > 0) {
-      return res.status(400).json({ error: 'Username is already taken' });
-    }
-
-    // If username is available, hash the password and create the user
-    const hashedPassword = bcrypt.hashSync(requestedPassword, 10);
-    console.log(hashedPassword, "hashed")
-
-    client.query('INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING user_id',
-
-      [username, hashedPassword, email, original_weight, feet, inches, height_inches, age, goal_weight], (err, result) => {
-        if (err) {
-          console.log(err, 'err')
-
+      if (err) {
           return res.status(500).json({ error: 'Internal Server Error' });
-        }
+      }
 
-        const user = result.rows[0]
-        const token = jwt.sign({ sub: user }, process.env.JWT_SECRET);
-        res.json({ token });
-      });
+      if (result.rows.length > 0) {
+          return res.status(400).json({ error: 'Username is already taken' });
+      }
+
+
+      const hashedPassword = bcrypt.hashSync(requestedPassword, 10);
+
+      client.query('INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
+          [username, hashedPassword, email, original_weight, feet, inches, height_inches, age, goal_weight], (err, result) => {
+              if (err) {
+                  return res.status(500).json({ error: 'Internal Server Error' });
+              }
+              const newUser = result.rows[0];
+
+              // Create token similarly to the login route
+              const token = jwt.sign({ sub: newUser.user_id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+              // Set the token as an HTTP-only cookie
+              res.cookie('jwtToken', token, {
+                  httpOnly: true,
+                  secure: process.env.NODE_ENV === 'production',
+                  sameSite: 'strict'
+              });
+
+              // Send a success response
+              res.status(200).json({ success: true });
+          });
   });
 });
 
 
+
+
 app.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
+  // Assuming user authentication is successful, and `req.user` contains the authenticated user
+  const token = jwt.sign({ sub: req.user.user_id }, process.env.JWT_SECRET, { expiresIn: '1d' }); // Adjust the expiresIn as necessary
   
-  const token = jwt.sign({ sub: req.user }, process.env.JWT_SECRET)
-  res.json({ token });
+  // Set the token as an HTTP-only cookie
+  res.cookie('jwtToken', token, {
+      httpOnly: true, // The cookie can't be accessed by client-side JS
+      secure: process.env.NODE_ENV === 'production', // On production, use secure cookies
+      sameSite: 'strict' // Helps mitigate CSRF attacks
+  });
 
-})
+  // Send a success response
+  res.status(200).json({ success: true });
+});
 
-app.get('/user',
+app.post('/logout', (req, res) => {
+    res.clearCookie('jwtToken');
+    res.json({ message: 'Logged out successfully' });
+});
+
+
+app.get('/user/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { user.getUser(req, res) }) 
+  checkAuthorization,
+  (req, res) => { user.getUser(req, res) })
 
 app.delete('/user/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { user.deleteUser(req, res) })
 
 app.put('/user/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { user.updateUser(req,res)})
+  checkAuthorization,
+  (req, res) => { user.updateUser(req, res) })
 
 
 
-app.post('/Weight', 
-  passport.authenticate('jwt', { session: false}),
-  (req, res) => {food.getWeight(req, res) })
-
-app.get('/Weight',
+app.post('/weight/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { food.createWeight(req, res) }) 
+  checkAuthorization,
+  (req, res) => { weight.createWeight(req, res) })
 
-app.delete('/Weight/:id',
+app.get('/weight/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { food.deleteWeight(req, res) })
+  checkAuthorization,
+  (req, res) => { weight.getWeight(req, res) })
 
-app.put('/Weight/:id',
+app.delete('/weight/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { food.updateWeight(req,res)})
+  deleteUpdateAuthorization,
+  (req, res) => { weight.deleteWeight(req, res) })
 
-
-app.post('/food', 
-  passport.authenticate('jwt', { session: false}),
-  (req, res) => {food.addFood(req, res) })
-
-app.get('/food',
+app.put('/weight/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { food.getFood(req, res) }) 
+  deleteUpdateAuthorization,
+  (req, res) => { weight.updateWeight(req, res) })
+
+
+app.post('/food/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { food.addFood(req, res) })
+
+app.get('/food/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { food.getFood(req, res) })
 
 app.delete('/food/:id',
   passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
   (req, res) => { food.deleteFood(req, res) })
 
 app.put('/food/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { food.updateFood(req,res)})
+  deleteUpdateAuthorization,
+  (req, res) => { food.updateFood(req, res) })
 
 
-
-app.get('/reminders',
-passport.authenticate('jwt', {session: false}),
-(req, res) => {reminders.getReminders(req, res)})
-
-app.post('/reminders',
-passport.authenticate('jwt', {session: false}),
-(req, res)=> {reminders.createReminder(req, res)})
-
-app.delete('/reminders/:id',
-passport.authenticate('jwt', {session: false}),
-(req, res) => {reminders.deleteReminder(req, res)})
-
-app.put('/reminders/:id',
+app.get('/water/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { reminders.updateReminder(req,res)})
+  checkAuthorization,
+  (req, res) => { water.getWaterIntake(req, res) })
 
-
-
-  app.get('/water',
-  passport.authenticate('jwt', {session: false}),
-  (req, res) => {water.getWaterIntake(req, res)})
-  
-  app.post('/water',
-  passport.authenticate('jwt', {session: false}),
-  (req, res)=> {water.createWaterIntake(req, res)})
-  
-  app.delete('/water/:id',
-  passport.authenticate('jwt', {session: false}),
-  (req, res) => {water.deleteWaterIntake(req, res)})
-  
-  app.put('/water/:id',
-    passport.authenticate('jwt', { session: false }),
-    (req, res) => { water.updateWaterIntake(req,res)})
-
-
-  app.get('/exercise',
-  passport.authenticate('jwt', {session: false}),
-  (req, res) => {exercise.getExerciseEntries(req, res)})
-    
-  app.post('/exercise',
-  passport.authenticate('jwt', {session: false}),
-  (req, res)=> {exercise.createExerciseEntry(req, res)})
-    
-  app.delete('/exercise/:id',
-  passport.authenticate('jwt', {session: false}),
-  (req, res) => {exercise.deleteExerciseEntry(req, res)})
-    
-  app.put('/exercise/:id',
+app.post('/water/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { exercise.updateExerciseEntry(req,res)})
+  (req, res) => { water.createWaterIntake(req, res) })
+
+app.delete('/water/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { water.deleteWaterIntake(req, res) })
+
+app.put('/water/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { water.updateWaterIntake(req, res) })
+
+
+app.get('/activity/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { activity.getActivity(req, res) })
+
+app.post('/activity/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { activity.createActivity(req, res) })
+
+app.delete('/activity/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { activity.deleteActivity(req, res) })
+
+app.put('/activity/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { activity.updateActivity(req, res) })
+
+
+app.get('/reminder/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { reminders.getReminders(req, res) })
+
+app.post('/reminder/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { reminders.createReminder(req, res) })
+
+app.delete('/reminder/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { reminders.deleteReminder(req, res) })
+
+app.put('/reminder/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { reminders.updateReminder(req, res) })
+
+
+
 
 
 app.listen(port, () => {
