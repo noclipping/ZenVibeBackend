@@ -92,31 +92,6 @@ async function deleteUpdateAuthorization(req, res, next, tableName) {
 //HOW TO VERIFY THAT THIS USER CANNOT MODIFY ANOTHER'S DATA
 }
 
-// async function deleteAndUpdateAuthorization(req, res, next, tableName) {
-//   try {
-//     const entryId = req.params.id;
-//     const userId = req.user.user_id;
-
-//     const result = await db.pool.query(`SELECT user_id FROM ${tableName} WHERE entry_id = $1`, [entryId]);
-
-//     if (result.rows.length === 0) {
-//       return res.status(404).json({ error: 'Entry not found.' });
-//     }
-
-//     const entryUserId = result.rows[0].user_id;
-
-
-//     if (Number(userId) !== Number(entryUserId)) {
-//       return res.status(403).json({ error: 'Unauthorized user.' });
-//     }
-
-//     next();
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ error: 'Internal Server Error' });
-//   }
-// }
-
 //check that user id in entry (requesat user id), matches the user_id of entry, once we have tHE entry --> update/delete
 app.post('/register', (req, res) => {
 
@@ -206,41 +181,8 @@ app.get('/weight/:id',
 
 app.delete('/weight/:id',
   passport.authenticate('jwt', { session: false }),
-  // checkAuthorization,
   deleteUpdateAuthorization,
   (req, res) => { weight.deleteWeight(req, res) })
-
-// app.delete('/weight/:id',
-//   passport.authenticate('jwt', { session: false }),
-//   async (req, res) => {
-//     try {
-
-//       await deleteAndUpdateAuthorization(req, res, () => { }, 'weight_data');
-
-//       const deletedWeight = await weight.deleteWeight(req, res);
-
-//       } catch (error) {
-//       console.error(error);
-//       res.status(500).json({ error: 'Internal Server Error' });
-//     }
-//   }
-// );
-
-// app.put('/weight/:id',
-//   passport.authenticate('jwt', { session: false }),
-//   async (req, res) => {
-//     try {
-//       // Use the generic middleware to check authorization and update for the weight_data table
-//       await deleteAndUpdateAuthorization(req, res, () => {}, 'weight_data');
-//     } catch (error) {
-//       console.error(error);
-//       res.status(500).json({ error: 'Internal Server Error' });
-//     }
-//   }
-// );
-
-
-
 
 app.put('/weight/:id',
   passport.authenticate('jwt', { session: false }),
