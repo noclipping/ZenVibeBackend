@@ -188,20 +188,24 @@ app.put('/weight/:id',
   (req, res) => { weight.updateWeight(req, res) })
 
 
-app.post('/food',
+app.post('/food/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { food.addFood(req, res) })
 
-app.get('/food',
+app.get('/food/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { food.getFood(req, res) })
 
 app.delete('/food/:id',
   passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
   (req, res) => { food.deleteFood(req, res) })
 
 app.put('/food/:id',
   passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
   (req, res) => { food.updateFood(req, res) })
 
 

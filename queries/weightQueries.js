@@ -8,9 +8,9 @@ const getWeight = (req, res) => {
 
         if (err) {
             console.error(err, 'ERROR');
-            res.status(500).send('Error retrieving weights');
+            res.status(500).send('Error retrieving weight entries.');
         } else {
-            console.log(result.rows, 'User weight data displayed.');
+            console.log(result.rows, 'Weight entries displayed.');
             res.status(200).json(result.rows);
             console.log(result.rows)
         }
@@ -55,11 +55,11 @@ const deleteWeight = async (req, res) => {
 
         const deletedWeight = result.rows[0]
         console.log(deletedWeight)
-        res.status(200).send('Weight deleted!')
+        res.status(200).send('Weight entry deleted!')
 
         return deletedWeight
     } catch (error) {
-        console.error(error, 'ERROR deleting weight')
+        console.error(error, 'ERROR deleting weight entry.')
         throw error
     }
 };
@@ -75,9 +75,9 @@ const updateWeight = async (req, res) => {
     await db.pool.query(`UPDATE weight_data SET weight = $1, entry_date = $2 WHERE entry_id = ${req.params.id} RETURNING *`, [udpatedWeight, updatedEntryDate], (err, result) => {
         if (err) {
             console.error(err, 'ERROR');
-            res.status(500).send('Error updating weight');
+            res.status(500).send('Error updating weight entry');
         } else {
-            console.log(result.rows[0], 'Weight updated!');
+            console.log(result.rows[0], 'Weight entry updated!');
             res.status(200).json(result.rows[0]);
         }
     });
