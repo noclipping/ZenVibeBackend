@@ -21,7 +21,7 @@ const port = 3000
 
 passport.use(new LocalStrategy(
   (username, password, done) => {
-    
+
     client.query('SELECT * FROM users WHERE username = $1', [username], (err, result) => {
       if (err) {
         return done(err)
@@ -73,6 +73,29 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
+function checkAuthorization(req, res, next) {
+  console.log((req.params.id), typeof (req.user.user_id))
+  if (Number(req.params.id) !== Number(req.user.user_id)) {
+    return res.status(403).json({ error: "Unauthorized user." })
+  }
+  next()
+}
+
+async function deleteUpdateAuthorization(req, res, next, tableName) {
+  const entryId = req.params.id
+  const userId = req.user.user_id
+  // const userId = 5
+
+  const result = await db.pool.query(`SELECT entry_id FROM ${tableName} WHERE entry_id = $1 AND user_id = $2`, [entryId, userId])
+
+  console.log(userId, "THIS")
+  if (result.rows.length === 0) {
+    return res.status(404).json({ error: 'Entry not found.' });
+  }
+  next()
+
+}
+
 app.post('/register', (req, res) => {
   let username = req.body.username;
   let requestedPassword = req.body.password_hash;
@@ -93,6 +116,7 @@ app.post('/register', (req, res) => {
           return res.status(400).json({ error: 'Username is already taken' });
       }
 
+
       const hashedPassword = bcrypt.hashSync(requestedPassword, 10);
 
       client.query('INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
@@ -100,7 +124,6 @@ app.post('/register', (req, res) => {
               if (err) {
                   return res.status(500).json({ error: 'Internal Server Error' });
               }
-
               const newUser = result.rows[0];
 
               // Create token similarly to the login route
@@ -118,6 +141,7 @@ app.post('/register', (req, res) => {
           });
   });
 });
+
 
 
 
@@ -141,120 +165,129 @@ app.post('/logout', (req, res) => {
     res.json({ message: 'Logged out successfully' });
 });
 
-app.get('/user',
+
+app.get('/user/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { user.getUser(req, res) }) 
+  checkAuthorization,
+  (req, res) => { user.getUser(req, res) })
 
 app.delete('/user/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { user.deleteUser(req, res) })
 
 app.put('/user/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { user.updateUser(req,res)})
+  checkAuthorization,
+  (req, res) => { user.updateUser(req, res) })
 
 
 
-app.post('/weight', 
-  passport.authenticate('jwt', { session: false}),
-  (req, res) => {weight.createWeight(req, res) })
-
-app.get('/weight',
+app.post('/weight/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { weight.getWeight(req, res) }) 
+  checkAuthorization,
+  (req, res) => { weight.createWeight(req, res) })
+
+app.get('/weight/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { weight.getWeight(req, res) })
 
 app.delete('/weight/:id',
   passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
   (req, res) => { weight.deleteWeight(req, res) })
 
 app.put('/weight/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { weight.updateWeight(req,res)})
+  deleteUpdateAuthorization,
+  (req, res) => { weight.updateWeight(req, res) })
 
 
-app.post('/food', 
-  passport.authenticate('jwt', { session: false}),
-  (req, res) => {food.addFood(req, res) })
-
-app.get('/food',
+app.post('/food/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { food.getFood(req, res) }) 
+  checkAuthorization,
+  (req, res) => { food.addFood(req, res) })
+
+app.get('/food/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { food.getFood(req, res) })
 
 app.delete('/food/:id',
   passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
   (req, res) => { food.deleteFood(req, res) })
 
 app.put('/food/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { food.updateFood(req,res)})
+  deleteUpdateAuthorization,
+  (req, res) => { food.updateFood(req, res) })
 
 
-
-app.get('/reminders',
-passport.authenticate('jwt', {session: false}),
-(req, res) => {reminders.getReminders(req, res)})
-
-app.post('/reminders',
-passport.authenticate('jwt', {session: false}),
-(req, res)=> {reminders.createReminder(req, res)})
-
-app.delete('/reminders/:id',
-passport.authenticate('jwt', {session: false}),
-(req, res) => {reminders.deleteReminder(req, res)})
-
-app.put('/reminders/:id',
+app.get('/water/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => { reminders.updateReminder(req,res)})
+  checkAuthorization,
+  (req, res) => { water.getWaterIntake(req, res) })
 
-
-
-  app.get('/water',
-  passport.authenticate('jwt', {session: false}),
-  (req, res) => {water.getWaterIntake(req, res)})
-  
-  app.post('/water',
-  passport.authenticate('jwt', {session: false}),
-  (req, res)=> {water.createWaterIntake(req, res)})
-  
-  app.delete('/water/:id',
-  passport.authenticate('jwt', {session: false}),
-  (req, res) => {water.deleteWaterIntake(req, res)})
-  
-  app.put('/water/:id',
-    passport.authenticate('jwt', { session: false }),
-    (req, res) => { water.updateWaterIntake(req,res)})
-
-
-  app.get('/activity',
-  passport.authenticate('jwt', {session: false}),
-  (req, res) => {activity.getActivity(req, res)})
-    
-  app.post('/activity',
-  passport.authenticate('jwt', {session: false}),
-  (req, res)=> {activity.createActivity(req, res)})
-    
-  app.delete('/activity/:id',
-  passport.authenticate('jwt', {session: false}),
-  (req, res) => {activity.deleteActivity(req, res)})
-    
-  app.put('/activity/:id',
+app.post('/water/:id',
   passport.authenticate('jwt', { session: false }),
-  (req, res) => {activity.updateActivity(req,res)})
+  (req, res) => { water.createWaterIntake(req, res) })
 
-// app.create
-app.get("/weight", (req, res)=>{
-  weight.getWeight(req, res)
-})
-//app.post.delete.put
-app.post('/weight', (req, res)=>{
-  weight.createWeight(req, res)
-})
-app.delete('/weight/:user_id', (req, res)=>{
- weight.deleteWeight(req, res)
-})
-app.put('/weight/:user_id', (req, res)=>{
-  weight.updateWeight(req, res)
-});
+app.delete('/water/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { water.deleteWaterIntake(req, res) })
+
+app.put('/water/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { water.updateWaterIntake(req, res) })
+
+
+app.get('/activity/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { activity.getActivity(req, res) })
+
+app.post('/activity/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { activity.createActivity(req, res) })
+
+app.delete('/activity/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { activity.deleteActivity(req, res) })
+
+app.put('/activity/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { activity.updateActivity(req, res) })
+
+
+app.get('/reminder/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { reminders.getReminders(req, res) })
+
+app.post('/reminder/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { reminders.createReminder(req, res) })
+
+app.delete('/reminder/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { reminders.deleteReminder(req, res) })
+
+app.put('/reminder/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { reminders.updateReminder(req, res) })
+
+
+
 
 
 app.listen(port, () => {
