@@ -42,8 +42,6 @@ const createWeight = (req, res) => {
     });
 };
 
-// weight module
-
 const deleteWeight = async (req, res) => {
     try {
         const entryId = req.params.id
@@ -65,29 +63,6 @@ const deleteWeight = async (req, res) => {
     }
 };
 
-
-
-
-
-
-// const deleteWeight = (req, res) => {
-
-//     const userId = parseInt(req.params.id)
-
-//     db.pool.query('DELETE FROM weight_data WHERE user_id = $1 RETURNING *', [userId], (err, result) => {
-//         if (err) {
-//             res.status(500).send('Error deleting weight');
-//         } else {
-//             const deletedRow = result.rows[0]
-//             console.log(deletedRow, 'Weight deleted!');
-//             res.status(200).json(deletedRow);
-
-//         }
-
-//         console.log(result.rows[0])
-//     });
-// };
-
 const updateWeight = async (req, res) => {
     console.log(req.params.id)
     const { weight, entry_date } = req.body;
@@ -104,23 +79,8 @@ const updateWeight = async (req, res) => {
             console.log(result.rows[0], 'Weight updated!');
             res.status(200).json(result.rows[0]);
         }
-
-
     });
 
-
-
-
-    // await db.pool.query(`UPDATE weight_data SET user_id = $1, weight = $2, entry_date = $3 WHERE entry_id = ${req.params.id} RETURNING *`, [userId, udpatedWeight, updatedEntryDate], (err, result) => {
-    //     if (err) {
-    //         console.error(err, 'ERROR');
-    //         res.status(500).send('Error updating weight');
-    //     } else {
-    //         const updatedRow = result.rows[0]
-    //         console.log(updatedRow, 'Weight updated!');
-    //         res.status(200).json(result.rows[0]);
-    //     }
-    // });
 };
 
 exports.getWeight = getWeight;
