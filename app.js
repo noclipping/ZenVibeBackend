@@ -80,19 +80,17 @@ async function deleteUpdateAuthorization(req, res, next, tableName) {
   const entryId = req.params.id
   const userId = req.user.user_id
   // const userId = 5
-  
+
   const result = await db.pool.query(`SELECT entry_id FROM ${tableName} WHERE entry_id = $1 AND user_id = $2`, [entryId, userId])
-  
+
   console.log(userId, "THIS")
   if (result.rows.length === 0) {
     return res.status(404).json({ error: 'Entry not found.' });
   }
   next()
-//WORKS BUT PROCESSING IN THUNDERCLIENT RUNS INDEFINITELY
-//HOW TO VERIFY THAT THIS USER CANNOT MODIFY ANOTHER'S DATA
+
 }
 
-//check that user id in entry (requesat user id), matches the user_id of entry, once we have tHE entry --> update/delete
 app.post('/register', (req, res) => {
 
   let username = req.body.username;
@@ -189,8 +187,6 @@ app.put('/weight/:id',
   deleteUpdateAuthorization,
   (req, res) => { weight.updateWeight(req, res) })
 
-//WORKS FOR UPDATE
-
 
 app.post('/food',
   passport.authenticate('jwt', { session: false }),
@@ -207,25 +203,6 @@ app.delete('/food/:id',
 app.put('/food/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => { food.updateFood(req, res) })
-
-
-
-app.get('/reminders',
-  passport.authenticate('jwt', { session: false }),
-  (req, res) => { reminders.getReminders(req, res) })
-
-app.post('/reminders',
-  passport.authenticate('jwt', { session: false }),
-  (req, res) => { reminders.createReminder(req, res) })
-
-app.delete('/reminders/:id',
-  passport.authenticate('jwt', { session: false }),
-  (req, res) => { reminders.deleteReminder(req, res) })
-
-app.put('/reminders/:id',
-  passport.authenticate('jwt', { session: false }),
-  (req, res) => { reminders.updateReminder(req, res) })
-
 
 
 app.get('/water',
@@ -261,20 +238,25 @@ app.put('/activity/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => { activity.updateActivity(req, res) })
 
-// app.create
-app.get("/weight", (req, res) => {
-  weight.getWeight(req, res)
-})
-//app.post.delete.put
-app.post('/weight', (req, res) => {
-  weight.createWeight(req, res)
-})
-app.delete('/weight/:user_id', (req, res) => {
-  weight.deleteWeight(req, res)
-})
-app.put('/weight/:user_id', (req, res) => {
-  weight.updateWeight(req, res)
-});
+
+app.get('/reminders',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { reminders.getReminders(req, res) })
+
+app.post('/reminders',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { reminders.createReminder(req, res) })
+
+app.delete('/reminders/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { reminders.deleteReminder(req, res) })
+
+app.put('/reminders/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => { reminders.updateReminder(req, res) })
+
+
+
 
 
 app.listen(port, () => {

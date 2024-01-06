@@ -54,7 +54,8 @@ const deleteWeight = async (req, res) => {
         }
 
         const deletedWeight = result.rows[0]
-        console.log(deletedWeight, 'Weight deleted!')
+        console.log(deletedWeight)
+        res.status(200).send('Weight deleted!')
 
         return deletedWeight
     } catch (error) {
