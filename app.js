@@ -250,20 +250,24 @@ app.put('/activity/:id',
   (req, res) => { activity.updateActivity(req, res) })
 
 
-app.get('/reminders',
+app.get('/reminder/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { reminders.getReminders(req, res) })
 
-app.post('/reminders',
+app.post('/reminder/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { reminders.createReminder(req, res) })
 
-app.delete('/reminders/:id',
+app.delete('/reminder/:id',
   passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
   (req, res) => { reminders.deleteReminder(req, res) })
 
-app.put('/reminders/:id',
+app.put('/reminder/:id',
   passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
   (req, res) => { reminders.updateReminder(req, res) })
 
 
