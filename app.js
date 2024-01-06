@@ -229,20 +229,24 @@ app.put('/water/:id',
   (req, res) => { water.updateWaterIntake(req, res) })
 
 
-app.get('/activity',
+app.get('/activity/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { activity.getActivity(req, res) })
 
-app.post('/activity',
+app.post('/activity/:id',
   passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
   (req, res) => { activity.createActivity(req, res) })
 
 app.delete('/activity/:id',
   passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
   (req, res) => { activity.deleteActivity(req, res) })
 
 app.put('/activity/:id',
   passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
   (req, res) => { activity.updateActivity(req, res) })
 
 
