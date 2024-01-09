@@ -185,7 +185,7 @@ app.post("/register", (req, res) => {
           });
 
           // Send a success response
-          res.status(200).json({ id: newUser.id }); 
+          res.status(200).json({ id: newUser.user_id });
         }
       );
     }
