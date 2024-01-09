@@ -211,7 +211,7 @@ app.post(
     console.log(userCookie);
     console.log("================");
     // Send a success response
-    res.status(200).json({ success: true });
+    res.status(200).json({ id: req.user.user_id }); //this is route to the id of the user 
   }
 );
 
