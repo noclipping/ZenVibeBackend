@@ -211,7 +211,9 @@ app.post(
     console.log(userCookie);
     console.log("================");
     // Send a success response
-    res.status(200).json({ id: req.user.user_id }); //this is route to the id of the user 
+
+    res.status(200).json({ id: req.user.user_id });
+
   }
 );
 
@@ -252,6 +254,7 @@ app.post(
   passport.authenticate("jwt", { session: false }),
   checkAuthorization,
   (req, res) => {
+    console.log('test', req.body)
     weight.createWeight(req, res);
   }
 );
