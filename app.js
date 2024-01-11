@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require('cors')
+const cors = require('cors');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const jwt = require('jsonwebtoken');
@@ -8,15 +8,15 @@ const bcrypt = require('bcrypt');
 const { Client } = require('pg');
 const { Strategy, ExtractJwt } = require('passport-jwt');
 require('dotenv').config()
-const user = require('./queries/userQueries.js')
-const food = require('./queries/foodEntryQueries.js')
-const db = require('./database.js')
+const user = require('./queries/userQueries.js');
+const food = require('./queries/foodEntryQueries.js');
+const db = require('./database.js');
 const client = db.pool
-const weight = require('./queries/weightQueries.js')
-const reminders = require('./queries/remindersQueries.js')
-const water = require('./queries/waterQueries.js')
-const activity = require('./queries/activityQueries.js')
-const app = express()
+const weight = require('./queries/weightQueries.js');
+const reminders = require('./queries/remindersQueries.js');
+const water = require('./queries/waterQueries.js');
+const activity = require('./queries/activityQueries.js');
+const app = express();
 const port = 3000
 
 passport.use(new LocalStrategy(
@@ -287,6 +287,25 @@ app.put('/reminder/:id',
   (req, res) => { reminders.updateReminder(req, res) })
 
 
+  app.get('/mood/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { reminders.getMood(req, res) })
+
+app.post('/mood/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { reminders.createMood(req, res) })
+
+app.delete('/mood/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { reminders.deleteMood(req, res) })
+
+app.put('/mood/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { reminders.updateMood(req, res) })
 
 
 
