@@ -215,6 +215,7 @@ app.post(
   }
 );
 
+
 app.post("/logout", (req, res) => {
   res.clearCookie("jwtToken");
   res.json({ message: "Logged out successfully" });
