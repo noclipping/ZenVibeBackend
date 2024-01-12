@@ -17,24 +17,24 @@ const getReminders = (req, res) => {
 };
 
 const createReminder = (req, res) => {
-  
-    const { created_at, status, title, description, reminder_date } = req.body;
-    const userId = req.params.id
+    const { title, description, reminder_date } = req.body;
+    const userId = req.params.id;
+    // Assuming default status and using current timestamp for created_at
+    const status = 'pending'; 
+    const created_at = new Date().toISOString();
 
-    if(!created_at || !status || !title || !description || !reminder_date){
-        return res.status(400).json({ error: 'All fields required.'})
+    if (!title || !description || !reminder_date) {
+        return res.status(400).json({ error: 'All fields required.' });
     }
 
     db.pool.query(
         'INSERT INTO reminders (user_id, created_at, status, title, description, reminder_date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
         [userId, created_at, status, title, description, reminder_date],
-
         (err, result) => {
             if (err) {
                 console.error(err, 'ERROR');
                 res.status(500).send('Error creating reminder entry.');
             } else {
-                console.log(result.rows[0], 'Reminder entry added!');
                 res.status(201).json(result.rows[0]);
             }
         }
