@@ -23,8 +23,10 @@ const createWeight = (req, res) => {
     const userId = req.params.id
 
 
-    if (!weight || !entry_date) {
+    if (!weight && !entry_date) {
+        console.log(weight, entry_date, "test")
         return res.status(400).json({ error: 'All fields required.' })
+        
     }
 
     if (isNaN(weight)) {
