@@ -16,7 +16,7 @@ const users = [
     { username: 'ryan_gosling', password_hash: 'notebookFan123', email: 'ryan.gosling@example.com', original_weight: 160, feet: 6, inches: 1, age: 41, goal_weight: 150 },
     { username: 'jennifer_aniston', password_hash: 'friendsForever', email: 'jennifer.aniston@example.com', original_weight: 135, feet: 5, inches: 6, age: 53, goal_weight: 125 },
     { username: 'leonardo_dicaprio', password_hash: 'oscarWinner2020', email: 'leonardo.dicaprio@example.com', original_weight: 150, feet: 6, inches: 0, age: 47, goal_weight: 140 },
-    { username: 'megan_fox', password_hash: 'transformerGirl', email: 'megan.fox@example.com', original_weight: 125, feet: 5, inches: 4, age: 35, goal_weight: 115 },
+    { username: 'megan_fox', password_hash: ' ', email: 'megan.fox@example.com', original_weight: 125, feet: 5, inches: 4, age: 35, goal_weight: 115 },
     { username: 'brad_pitt', password_hash: 'fightClub99', email: 'brad.pitt@example.com', original_weight: 170, feet: 5, inches: 11, age: 58, goal_weight: 160 },
     { username: 'angelina_jolie', password_hash: 'tombRaider007', email: 'angelina.jolie@example.com', original_weight: 120, feet: 5, inches: 6, age: 46, goal_weight: 110 },
     { username: 'scarlett_johansson', password_hash:'blackWidow123', email: 'scarlett.johansson@example.com', original_weight: 140, feet: 5, inches: 3, age: 37, goal_weight: 130 },
