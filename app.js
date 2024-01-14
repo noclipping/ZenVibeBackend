@@ -279,6 +279,16 @@ app.delete(
   }
 );
 
+//get the last weight entry 
+app.get(
+  "/weight/latest/:id",
+  passport.authenticate("jwt", { session: false }),
+  checkAuthorization,
+  (req, res) => {
+    weight.getLatestWeightEntry(req, res);
+  }
+);
+
 app.put(
   "/weight/:id",
   passport.authenticate("jwt", { session: false }),
