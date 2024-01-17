@@ -2,7 +2,16 @@ const express = require('express');
 const passport = require('passport');
 const router = express.Router();
 const axios = require('axios');
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const { Pool } = require('pg');
+
+// PostgreSQL database configuration
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+  database: process.env.DB_NAME,
+});
 
 // Route to handle chatbot interaction
 router.post('/chatbot', passport.authenticate('jwt', { session: false }), async (req, res) => {
@@ -22,7 +31,7 @@ router.post('/chatbot', passport.authenticate('jwt', { session: false }), async 
         }, {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${OPENAI_API_KEY}` // Include the API key in the request header
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` // Include the API key in the request header
             }
         });
 
@@ -33,6 +42,11 @@ router.post('/chatbot', passport.authenticate('jwt', { session: false }), async 
         if (data.choices && data.choices.length > 0 && data.choices[0].message) {
             const replyMessage = data.choices[0].message.content; // Extract the message content
             res.json({ reply: replyMessage.trim() }); // Send the AI's reply back to the client
+
+            // Store the conversation history in the database
+            const timestamp = new Date();
+            await pool.query('INSERT INTO conversation_history (user_id, timestamp, role, message_content) VALUES ($1, $2, $3, $4)', [req.user.user_id, timestamp, 'user', userMessage]);
+            await pool.query('INSERT INTO conversation_history (user_id, timestamp, role, message_content) VALUES ($1, $2, $3, $4)', [req.user.user_id, timestamp, 'assistant', replyMessage]);
         } else {
             res.status(500).send('Error processing AI response'); // Handle case where AI response is not as expected
         }
@@ -41,5 +55,6 @@ router.post('/chatbot', passport.authenticate('jwt', { session: false }), async 
         res.status(500).send('Error processing your request'); // Handle any errors in the try block
     }
 });
+
 
 module.exports = router;
