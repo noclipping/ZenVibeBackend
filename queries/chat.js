@@ -15,10 +15,10 @@ router.post('/chatbot', passport.authenticate('jwt', { session: false }), async 
         // Extract the user's message from the request body
         const userMessage = req.body.message;
 
-        // Send a request to OpenAI's ChatGPT model
+        // Send a request to OpenAI's ChatGPT model with role set to "assistant"
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: 'gpt-3.5-turbo',
-            messages: [{ role: "user", content: userMessage }] // Format the message for the OpenAI API
+            messages: [{ role: "assistant", content: userMessage }] // Set role to "assistant"
         }, {
             headers: {
                 'Content-Type': 'application/json',
