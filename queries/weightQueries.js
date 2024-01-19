@@ -66,6 +66,26 @@ const deleteWeight = async (req, res) => {
     }
 };
 
+//added weight Quieries last weight delete 
+const getLatestWeightEntry = async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const result = await db.pool.query('SELECT * FROM weight_data WHERE user_id = $1 ORDER BY entry_date DESC LIMIT 1', [userId]);
+        
+        if (result.rows.length === 0) {
+            res.status(404).send('No weight entries found for this user.');
+        } else {
+            res.status(200).json(result.rows[0]);
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error retrieving the latest weight entry.');
+    }
+};
+
+
+
 const updateWeight = async (req, res) => {
     console.log(req.params.id)
     const { weight, entry_date } = req.body;
@@ -90,3 +110,4 @@ exports.getWeight = getWeight;
 exports.createWeight = createWeight;
 exports.deleteWeight = deleteWeight;
 exports.updateWeight = updateWeight;
+exports.getLatestWeightEntry = getLatestWeightEntry;

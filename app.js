@@ -18,8 +18,12 @@ const reminders = require("./queries/remindersQueries.js");
 const water = require("./queries/waterQueries.js");
 const activity = require("./queries/activityQueries.js");
 const cookieParser = require("cookie-parser");
+//Chat Route added 
+const chatRoutes = require('./queries/chat.js'); 
 const app = express();
 const port = 3000;
+
+
 
 app.use(cookieParser()); // Use cookie-parser middleware
 
@@ -53,7 +57,7 @@ passport.use(
 
 const cookieExtractor = function (req) {
   let token = null;
-  console.log(req.cookies)
+  console.log(req.cookies);
   if (req && req.cookies) {
     token = req.cookies["jwtToken"]; // The name of your cookie
     console.log(token);
@@ -69,8 +73,6 @@ passport.use(
       secretOrKey: process.env.JWT_SECRET,
     },
     (jwtPayload, done) => {
-
-
       console.log("JWT Payload:", jwtPayload); // Log the payload
       client.query(
         "SELECT * FROM users where user_id = $1",
@@ -103,8 +105,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
+
 function checkAuthorization(req, res, next) {
-  console.log(req.user, "user")
+  console.log(req.user, "user");
   if (Number(req.params.id) !== Number(req.user.user_id)) {
     return res.status(403).json({ error: "Unauthorized user." });
   }
@@ -193,7 +196,40 @@ app.post("/register", (req, res) => {
     }
   );
 });
+const ensureAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).send("Unauthorized");
+};
 
+// ChatGPT route
+app.post(
+  "/chatbot",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const userMessage = req.body.message;
+      const response = await fetch(OPENAI_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          prompt: userMessage,
+          max_tokens: 150,
+        }),
+      });
+
+      const data = await response.json();
+      res.json({ reply: data.choices[0].text.trim() });
+    } catch (error) {
+      console.error("ChatGPT API Error:", error);
+      res.status(500).send("Error processing your request");
+    }
+  }
+);
 app.post(
   "/login",
   passport.authenticate("local", { session: false }),
@@ -215,7 +251,6 @@ app.post(
     // Send a success response
 
     res.status(200).json({ id: req.user.user_id });
-
   }
 );
 
@@ -256,7 +291,7 @@ app.post(
   passport.authenticate("jwt", { session: false }),
   checkAuthorization,
   (req, res) => {
-    console.log('test', req.body)
+    console.log("test", req.body);
     weight.createWeight(req, res);
   }
 );
@@ -276,6 +311,16 @@ app.delete(
   deleteUpdateAuthorization,
   (req, res) => {
     weight.deleteWeight(req, res);
+  }
+);
+
+//get the last weight entry
+app.get(
+  "/weight/latest/:id",
+  passport.authenticate("jwt", { session: false }),
+  checkAuthorization,
+  (req, res) => {
+    weight.getLatestWeightEntry(req, res);
   }
 );
 
@@ -430,6 +475,8 @@ app.put(
     reminders.updateReminder(req, res);
   }
 );
+//added route for AI 
+app.use('/api', chatRoutes)
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
