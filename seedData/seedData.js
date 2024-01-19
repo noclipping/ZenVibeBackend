@@ -41,6 +41,8 @@ CREATE TABLE users (
     height_inches INT,
     age INT,
     goal_weight FLOAT
+    activity_level VARCHAR(255),
+    gender VARCHAR(255)
 );
 
   CREATE TABLE weight_data (
@@ -106,7 +108,7 @@ const insertQueries = `
 INSERT INTO weight_data (user_id, weight, entry_date) 
 VALUES
     (1, 155.5, '2023-01-01'),
-    (2, 130.0, '2023-01-02'),
+    (2, 130.0, '2023-01-02'), 
     (3, 175.2, '2023-01-03'),
     (4, 118.7, '2023-01-04'),
     (5, 162.3, '2023-01-05'),

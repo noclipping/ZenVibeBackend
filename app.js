@@ -32,6 +32,7 @@ app.use((req, res, next) => {
 passport.use(
   new LocalStrategy((username, password, done) => {
     console.log("local");
+    console.log('username',username ,'password', password);
     client.query(
       "SELECT * FROM users WHERE username = $1",
       [username],
