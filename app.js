@@ -1,3 +1,5 @@
+import LoadingScreen from "./loadingScreen/loadingScreen.jsx";
+
 //THIS IS MY COMMENT
 const express = require("express");
 const cors = require("cors");
@@ -140,6 +142,8 @@ app.post("/register", (req, res) => {
   let inches = req.body.inches;
   let height_inches = feet * 12 + inches;
   let age = req.body.age;
+  let gender = req.body.gender
+  let activity_level = req.body.activity_level
   let goal_weight = req.body.goal_weight;
 
   client.query(
@@ -157,7 +161,7 @@ app.post("/register", (req, res) => {
       const hashedPassword = bcrypt.hashSync(requestedPassword, 10);
 
       client.query(
-        "INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
+        "INSERT INTO users (username, password_hash, email, original_weight, feet, inches, height_inches, age, gender, activity_level, goal_weight) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *",
         [
           username,
           hashedPassword,
@@ -167,12 +171,17 @@ app.post("/register", (req, res) => {
           inches,
           height_inches,
           age,
+          gender,
+          activity_level,
           goal_weight,
         ],
+       
         (err, result) => {
           if (err) {
             return res.status(500).json({ error: "Internal Server Error" });
           }
+          console.log(gender, "gender")
+          console.log(activity_level, "activityLevel")
           const newUser = result.rows[0];
 
           // Create token similarly to the login route
@@ -202,6 +211,27 @@ const ensureAuthenticated = (req, res, next) => {
   }
   res.status(401).send("Unauthorized");
 };
+
+const loadingScreen = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading delay
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  return (
+    <div>
+      {loading ? <LoadingScreen /> : <LoadingScreen.mp4/>}
+    </div>
+  );
+};
+
+export default loadingScreen;
 
 // ChatGPT route
 app.post(
