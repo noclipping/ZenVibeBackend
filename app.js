@@ -14,6 +14,7 @@ const food = require("./queries/foodEntryQueries.js");
 const db = require("./database.js");
 const client = db.pool;
 const weight = require("./queries/weightQueries.js");
+const moodQueries = require('./queries/moodQueries.js');
 const reminders = require("./queries/remindersQueries.js");
 const water = require("./queries/waterQueries.js");
 const activity = require("./queries/activityQueries.js");
@@ -429,63 +430,29 @@ app.post(
   }
 );
 
-app.delete(
-  "/activity/:id",
-  passport.authenticate("jwt", { session: false }),
-  deleteUpdateAuthorization,
-  (req, res) => {
-    activity.deleteActivity(req, res);
-  }
-);
 
-app.put(
-  "/activity/:id",
-  passport.authenticate("jwt", { session: false }),
-  deleteUpdateAuthorization,
-  (req, res) => {
-    activity.updateActivity(req, res);
-  }
-);
-
-app.get(
-  "/reminder/:id",
-  passport.authenticate("jwt", { session: false }),
+app.get('/mood/:id',
+  passport.authenticate('jwt', { session: false }),
   checkAuthorization,
-  (req, res) => {
-    reminders.getReminders(req, res);
-  }
-);
+  (req, res) => { moodQueries.getMood(req, res); });
 
-app.post(
-  "/reminder/:id",
-  passport.authenticate("jwt", { session: false }),
+app.post('/mood/:id',
+  passport.authenticate('jwt', { session: false }),
   checkAuthorization,
-  (req, res) => {
-    reminders.createReminder(req, res);
-  }
-);
+  (req, res) => { moodQueries.createMood(req, res); });
 
-app.delete(
-  "/reminder/:id",
-  passport.authenticate("jwt", { session: false }),
+app.delete('/mood/:id',
+  passport.authenticate('jwt', { session: false }),
   deleteUpdateAuthorization,
-  (req, res) => {
-    reminders.deleteReminder(req, res);
-  }
-);
+  (req, res) => { moodQueries.deleteMood(req, res); });
 
-app.put(
-  "/reminder/:id",
-  passport.authenticate("jwt", { session: false }),
+app.put('/mood/:id',
+  passport.authenticate('jwt', { session: false }),
   deleteUpdateAuthorization,
-  (req, res) => {
-    reminders.updateReminder(req, res);
-  }
-);
-//added route for AI 
-app.use('/api', chatRoutes)
+  (req, res) => { moodQueries.updateMood(req, res); });
+
+// ... rest of your app setup ...
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Server listening on port ${port}`);
 });
-exports.client = client;
