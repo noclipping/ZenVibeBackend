@@ -1,5 +1,3 @@
-import LoadingScreen from "./loadingScreen/loadingScreen.jsx";
-
 //THIS IS MY COMMENT
 const express = require("express");
 const cors = require("cors");
@@ -211,27 +209,6 @@ const ensureAuthenticated = (req, res, next) => {
   }
   res.status(401).send("Unauthorized");
 };
-
-const loadingScreen = () => {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate loading delay
-    const timeout = setTimeout(() => {
-      setLoading(false);
-    }, 3000);
-
-    return () => clearTimeout(timeout);
-  }, []);
-
-  return (
-    <div>
-      {loading ? <LoadingScreen /> : <LoadingScreen.mp4/>}
-    </div>
-  );
-};
-
-export default loadingScreen;
 
 // ChatGPT route
 app.post(
