@@ -240,6 +240,7 @@ VALUES
   (23, 'Angry', 2, '2023-01-23'),
   (24, 'Content', 4, '2023-01-24'),
   (25, 'Anxious', 3, '2023-01-25');
+  (23, 'Angry', 2, '2023-01-23'),
 
 INSERT INTO reminders (user_id, created_at, status, title, description, reminder_date) 
 VALUES

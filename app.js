@@ -430,6 +430,42 @@ app.post(
   }
 );
 
+app.get(
+  "/reminder/:id",
+  passport.authenticate("jwt", { session: false }),
+  checkAuthorization,
+  (req, res) => {
+    reminders.getReminders(req, res);
+  }
+);
+
+app.post(
+  "/reminder/:id",
+  passport.authenticate("jwt", { session: false }),
+  checkAuthorization,
+  (req, res) => {
+    reminders.createReminder(req, res);
+  }
+);
+
+app.delete(
+  "/reminder/:id",
+  passport.authenticate("jwt", { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => {
+    reminders.deleteReminder(req, res);
+  }
+);
+
+app.put(
+  "/reminder/:id",
+  passport.authenticate("jwt", { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => {
+    reminders.updateReminder(req, res);
+  }
+);
+
 
 app.get('/mood/:id',
   passport.authenticate('jwt', { session: false }),
