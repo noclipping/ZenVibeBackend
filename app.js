@@ -451,8 +451,10 @@ app.put('/mood/:id',
   deleteUpdateAuthorization,
   (req, res) => { moodQueries.updateMood(req, res); });
 
-// ... rest of your app setup ...
-
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
+
+app.use('/api', chatRoutes)
+
+exports.client = client;
