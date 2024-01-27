@@ -421,6 +421,25 @@ app.get(
   }
 );
 
+app.delete(
+  "/activity/:id",
+  passport.authenticate("jwt", { session: false }),
+  checkAuthorization,
+  (req, res) => {
+    activity.deleteActivity(req, res);
+  }
+);
+
+app.put(
+  "/activity/:id",
+  passport.authenticate("jwt", { session: false }),
+  checkAuthorization,
+  (req, res) => {
+    activity.updateActivity(req, res);
+  }
+);
+
+
 app.post(
   "/activity/:id",
   passport.authenticate("jwt", { session: false }),
