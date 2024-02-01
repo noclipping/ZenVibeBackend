@@ -21,8 +21,7 @@ const cookieParser = require("cookie-parser");
 //Chat Route added 
 const chatRoutes = require('./queries/chat.js'); 
 const app = express();
-const port = process.env.PORT || 3030; 
-
+const port = process.env.PORT || 3000; 
 app.use(cookieParser()); // Use cookie-parser middleware
 
 app.use((req, res, next) => {
