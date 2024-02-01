@@ -511,6 +511,11 @@ app.get('/', (req, res) => {
   res.send('Welcome to the ZenVibe Backend API!');
 });
 
+app.get("/register", (req, res) => {
+  // You can send the registration form or any other response as needed
+  res.send("This is the registration page");
+});
+
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server listening on port ${port}`);
