@@ -504,11 +504,9 @@ app.put('/mood/:id',
   (req, res) => { moodQueries.updateMood(req, res); });
 
 // Root route handler
-app.get('/', (req, res) => {
-  res.send('Welcome to the ZenVibe Backend API!');
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server listening on port ${port}`);
 });
-
-
 
 app.use('/api', chatRoutes)
 
