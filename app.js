@@ -14,7 +14,7 @@ const food = require("./queries/foodEntryQueries.js");
 const db = require("./database.js");
 const client = db.pool;
 const weight = require("./queries/weightQueries.js");
-const reminders = require("./queries/remindersQueries.js");
+const reminderRoutes = require('./queries/remindersQueries');
 const water = require("./queries/waterQueries.js");
 const activity = require("./queries/activityQueries.js");
 const cookieParser = require("cookie-parser");
@@ -481,6 +481,8 @@ app.put(
 );
 //added route for AI 
 app.use('/api', chatRoutes)
+
+app.use('/reminders', passport.authenticate('jwt', { session: false }), reminderRoutes);
 
 
 app.get('/', (req, res) => {
