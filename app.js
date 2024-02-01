@@ -14,14 +14,15 @@ const food = require("./queries/foodEntryQueries.js");
 const db = require("./database.js");
 const client = db.pool;
 const weight = require("./queries/weightQueries.js");
-const reminderRoutes = require('./queries/remindersQueries');
+const moodQueries = require('./queries/moodQueries.js');
+const reminders = require("./queries/remindersQueries.js");
 const water = require("./queries/waterQueries.js");
 const activity = require("./queries/activityQueries.js");
 const cookieParser = require("cookie-parser");
 //Chat Route added 
 const chatRoutes = require('./queries/chat.js'); 
 const app = express();
-const port = process.env.PORT || 3000; 
+const port = 3000;
 app.use(cookieParser()); // Use cookie-parser middleware
 
 app.use((req, res, next) => {
@@ -417,19 +418,10 @@ app.get(
   }
 );
 
-app.post(
-  "/activity/:id",
-  passport.authenticate("jwt", { session: false }),
-  checkAuthorization,
-  (req, res) => {
-    activity.createActivity(req, res);
-  }
-);
-
 app.delete(
   "/activity/:id",
   passport.authenticate("jwt", { session: false }),
-  deleteUpdateAuthorization,
+  checkAuthorization,
   (req, res) => {
     activity.deleteActivity(req, res);
   }
@@ -438,9 +430,19 @@ app.delete(
 app.put(
   "/activity/:id",
   passport.authenticate("jwt", { session: false }),
-  deleteUpdateAuthorization,
+  checkAuthorization,
   (req, res) => {
     activity.updateActivity(req, res);
+  }
+);
+
+
+app.post(
+  "/activity/:id",
+  passport.authenticate("jwt", { session: false }),
+  checkAuthorization,
+  (req, res) => {
+    activity.createActivity(req, res);
   }
 );
 
@@ -479,18 +481,32 @@ app.put(
     reminders.updateReminder(req, res);
   }
 );
-//added route for AI 
-app.use('/api', chatRoutes)
-
-app.use('/reminders', passport.authenticate('jwt', { session: false }), reminderRoutes);
 
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+app.get('/mood/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { moodQueries.getMood(req, res); });
 
-app.listen(port, '0.0.0.0', () => {
+app.post('/mood/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkAuthorization,
+  (req, res) => { moodQueries.createMood(req, res); });
+
+app.delete('/mood/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { moodQueries.deleteMood(req, res); });
+
+app.put('/mood/:id',
+  passport.authenticate('jwt', { session: false }),
+  deleteUpdateAuthorization,
+  (req, res) => { moodQueries.updateMood(req, res); });
+
+app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
+
+app.use('/api', chatRoutes)
 
 exports.client = client;
