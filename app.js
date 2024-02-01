@@ -21,7 +21,7 @@ const cookieParser = require("cookie-parser");
 //Chat Route added 
 const chatRoutes = require('./queries/chat.js'); 
 const app = express();
-const port = process.env.PORT || 3030; // Default to 3000 if process.env.PORT is not set
+const port = process.env.PORT || 3030; 
 
 app.use(cookieParser()); // Use cookie-parser middleware
 
@@ -488,7 +488,8 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-app.listen(port, '0.0.0.0', () => {
+app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+
 exports.client = client;
