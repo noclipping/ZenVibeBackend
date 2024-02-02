@@ -1,6 +1,3 @@
-const express = require('express');
-const router = express.Router();
-const passport = require('passport');
 
 
 const db = require('../database');
@@ -97,10 +94,7 @@ const updateReminder = async (req, res) => {
     );
 };
 
-
-router.get('/:id', getReminders);
-router.post('/:id', createReminder);
-router.delete('/:id', deleteReminder);
-router.put('/:id', updateReminder);
-
-module.exports = router;
+exports.getReminders = getReminders;
+exports.createReminder = createReminder;
+exports.deleteReminder = deleteReminder;
+exports.updateReminder = updateReminder;

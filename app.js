@@ -23,6 +23,7 @@ const cookieParser = require("cookie-parser");
 const chatRoutes = require('./queries/chat.js'); 
 const app = express();
 const port = 3000;
+
 app.use(cookieParser()); // Use cookie-parser middleware
 
 app.use((req, res, next) => {
@@ -504,23 +505,11 @@ app.put('/mood/:id',
   (req, res) => { moodQueries.updateMood(req, res); });
 
 
-
-// Root route handler
-
-app.get('/', (req, res) => {
-  res.send('Welcome to the ZenVibe Backend API!');
-});
-
-app.get("/register", (req, res) => {
-  // You can send the registration form or any other response as needed
-  res.send("This is the registration page");
-});
+app.use('/api', chatRoutes)
 
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server listening on port ${port}`);
 });
-
-app.use('/api', chatRoutes)
 
 exports.client = client;

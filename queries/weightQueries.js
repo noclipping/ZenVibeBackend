@@ -1,7 +1,5 @@
-const express = require('express');
-const router = express.Router();
+
 const db = require('../database');
-const passport = require('passport');
 
 const getWeight = (req, res) => {
     const userId = req.params.id
@@ -108,10 +106,8 @@ const updateWeight = async (req, res) => {
 
 };
 
-router.get('/:id', getWeight);
-router.post('/:id', createWeight);
-router.delete('/:id', deleteWeight);
-router.put('/:id', updateWeight);
-router.get('/latest/:id', getLatestWeightEntry);
-
-module.exports = router;
+exports.getWeight = getWeight;
+exports.createWeight = createWeight;
+exports.deleteWeight = deleteWeight;
+exports.updateWeight = updateWeight;
+exports.getLatestWeightEntry = getLatestWeightEntry;
