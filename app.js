@@ -507,6 +507,10 @@ app.put('/mood/:id',
 
 app.use('/api', chatRoutes)
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the ZenVibe Backend API!');
+});
+
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server listening on port ${port}`);
