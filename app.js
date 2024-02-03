@@ -32,19 +32,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, res, next)=> {
-  client.query("SELECT * FROM users LIMIT(5)",
-  (err, result) => {
-    if(err){
-      res.send(err)
-    } else{
-      res.send(result)
-    }
-    console.log(result)
-    next()
-  })
-
-})
 passport.use(
   new LocalStrategy((username, password, done) => {
     console.log("local");
@@ -517,16 +504,9 @@ app.put('/mood/:id',
   deleteUpdateAuthorization,
   (req, res) => { moodQueries.updateMood(req, res); });
 
-
-app.use('/api', chatRoutes)
-
-app.get('/', (req, res) => {
-  res.send('Welcome to the ZenVibe Backend API!');
-});
-
-
-app.listen(port, '0.0.0.0', () => {
+app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
+app.use('/api', chatRoutes)
 
 exports.client = client;
